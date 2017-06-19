@@ -1,19 +1,19 @@
 //
-// Advanced Fare Analytics
+// Termwrap
 //
-// ui/engine/driver.hpp
+// termwrap/driver.hpp
 //
 // Copyright Dr Robert H Crowston, 2017. All rights reserved.
 // See LICENCE for licensing rights.
 //
 
-#ifndef RHC_UI_ENGINE_ERROR_H
-#define RHC_UI_ENGINE_ERROR_H
+#ifndef RHC_TERMWRAP_ERROR_H
+#define RHC_TERMWRAP_ERROR_H
 
 #include <stdexcept>
 #include <string>
 
-namespace ui{ namespace engine
+namespace termwrap
 {
 	//
 	// System exceptions.
@@ -77,7 +77,7 @@ namespace ui{ namespace engine
 		color_not_supported_error() : driver_draw_error("Color not supported in present mode.") { }
 	};
 
-} } // End of namespace ui::driver.
+} // End of namespace termwrap.
 
-#endif // !RHC_UI_ENGINE_ERROR_H.
+#endif // !RHC_TERMWRAP_ERROR_H.
 

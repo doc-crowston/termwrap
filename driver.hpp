@@ -1,14 +1,14 @@
 //
-// Advanced Fare Analytics
+// Termwrap
 //
-// ui/engine/driver.hpp
+// termwrap/driver.hpp
 //
 // Copyright Dr Robert H Crowston, 2017. All rights reserved.
 // See LICENCE for licensing rights.
 //
 
-#ifndef RHC_UI_ENGINE_DRIVER_H
-#define RHC_UI_ENGINE_DRIVER_H
+#ifndef RHC_TERMWRAP_DRIVER_H
+#define RHC_TERMWRAP_DRIVER_H
 
 #include <cstdint>
 #include <string>
@@ -16,7 +16,7 @@
 #include "cell_style.hpp"
 #include "error.hpp"
 
-namespace ui{ namespace engine
+namespace termwrap
 {
 	using ordinate_t = std::uint_least16_t;
 	using native_char_t = std::uint32_t;
@@ -78,7 +78,7 @@ namespace ui{ namespace engine
 		ordinate_t tab_stop_width = 4;
 
 	};
-} } // End of namespace ui::engine.
+} // End of namespace termwrap.
 
-#endif // !RHC_UI_ENGINE_DRIVER_H.
+#endif // !RHC_TERMWRAP_DRIVER_H.
 

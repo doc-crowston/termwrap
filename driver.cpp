@@ -1,7 +1,7 @@
 //
-// Advanced Fare Analytics
+// Termwrap
 //
-// ui/engine/driver.cpp
+// termwrap/driver.cpp
 //
 // Copyright Dr Robert H Crowston, 2017. All rights reserved.
 // See LICENCE for licensing rights.
@@ -15,7 +15,7 @@
 #include <string>
 #include "/opt/termbox/include/termbox.h"
 
-namespace ui{ namespace engine
+namespace termwrap
 {
 
 	//
@@ -114,19 +114,22 @@ namespace ui{ namespace engine
 	void driver::write_block_at(const ordinate_t start_x, const ordinate_t start_y, const string& text)
 	{
 		ordinate_t x = start_x; ordinate_t y = start_y;
+		const auto width = console_width();
+		
 		for (const auto& ch : text)
 		{
 			switch (ch)
 			{
 				case '\n':
+					redraw();
 					++y;
 					// [[fall_through]
 				case '\r':
 					x = start_x;
 					break;
 				case '\t':
-				//	x += tab_stop_width;
-				//	x = ((x/tab_stop_width)+1)*tab_stop_width;
+					x += tab_stop_width;
+					x = (x/tab_stop_width)*tab_stop_width;
 					break;
 				default:
 					break;
@@ -134,15 +137,15 @@ namespace ui{ namespace engine
 
 			if (x >= console_width())
 			{
-			//	x = start_x;
-			//	++y;
+				x = start_x;
+				++y;
 			}
 
 			if (y >= console_height())
 				throw text_overflow_error(); 
 
 			const struct tb_cell* const native_buffer = tb_cell_buffer();
-			const struct tb_cell* const cell = native_buffer + y*console_width() + x;
+			const struct tb_cell* const cell = native_buffer + y*width + x;
 			tb_change_cell(x, y, to_native_char(ch), cell->fg, cell->bg);
 
 			++x;
@@ -177,5 +180,5 @@ namespace ui{ namespace engine
 			//== 0 );
 		return ch;
 	}
-} } // End of namespace ui::engine.
+} // End of namespace termwrap.
 

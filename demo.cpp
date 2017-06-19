@@ -1,10 +1,9 @@
-#include <chrono>
+#include <csignal>
 #include <string>
-#include <thread>
 
 #include "driver.hpp"
 
-using namespace ui::engine;
+using namespace termwrap;
 
 class tui
 {
@@ -48,8 +47,8 @@ class tui
 
 int main()
 {
-	using namespace std::chrono_literals;
-	
+	std::raise(SIGSTOP);
+
 	tui ui;
 	ui.title_bar();
 	ui.status_bar();
@@ -57,8 +56,7 @@ int main()
 	ui.inspector();
 	ui.flush();
 	
-
-	std::this_thread::sleep_for(10s);
+	std::raise(SIGSTOP);
 	
 	return 0;
 }

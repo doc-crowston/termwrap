@@ -1,7 +1,7 @@
 //
-// Advanced Fare Analytics
+// Termwrap
 //
-// ui/engine/cell_style.cpp
+// termwrap/cell_style.cpp
 //
 // Copyright Dr Robert H Crowston, 2017. All rights reserved.
 // See LICENCE for licensing rights.
@@ -11,7 +11,7 @@
 #include "error.hpp"
 #include "/opt/termbox/include/termbox.h"
 
-namespace ui{ namespace engine
+namespace termwrap
 {
 	static constexpr native_style_t to_native_color(const color& c) noexcept
 	{
@@ -111,5 +111,5 @@ namespace ui{ namespace engine
 	{
 		return to_native_color(background);
 	}
-} } // End of namespace ui::engine.
+} // End of namespace termwrap.
 

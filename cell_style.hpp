@@ -1,18 +1,18 @@
 //
-// Advanced Fare Analytics
+// Termwrap 
 //
-// ui/engine/cell_style.hpp
+// termwrap/cell_style.hpp
 //
 // Copyright Dr Robert H Crowston, 2017. All rights reserved.
 // See LICENCE for licensing rights.
 //
 
-#ifndef RHC_UI_ENGINE_CELL_STYLE_H
-#define RHC_UI_ENGINE_CELL_STYLE_H
+#ifndef RHC_TERMWRAP_CELL_STYLE_H
+#define RHC_TERMWRAP_CELL_STYLE_H
 
 #include <cstdint>
 
-namespace ui{ namespace engine
+namespace termwrap
 {
 	//
 	// Cell style attributes.
@@ -61,7 +61,7 @@ namespace ui{ namespace engine
 		native_style_t to_native_fg() const ;
 		native_style_t to_native_bg() const ;
 	};
-} } // End of namespace ui::engine.
+} // End of namespace termwrap.
 
-#endif // !RHC_UI_ENGINE_CELL_STYLE_H
+#endif // !RHC_TERMWRAP_CELL_STYLE_H
 
