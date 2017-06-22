@@ -65,9 +65,7 @@ namespace termwrap
 	// Cell-level display.
 	void driver::set_cell_style(const ordinate_t x, const ordinate_t y, const cell_style& style)
 	{
-		const struct tb_cell* const native_buffer = tb_cell_buffer();
-		const struct tb_cell* const cell = native_buffer + y*console_width() + x;
-		tb_change_cell(x, y, to_char(cell->ch), style.to_native_fg(), style.to_native_bg());
+		set_block_style(x,y, x,y, style);
 	}
 
 	cell_style driver::get_cell_style(const ordinate_t x, const ordinate_t y) const
@@ -115,24 +113,21 @@ namespace termwrap
 	{
 		ordinate_t x = start_x; ordinate_t y = start_y;
 		const auto width = console_width();
-		
+
 		for (const auto& ch : text)
 		{
 			switch (ch)
 			{
 				case '\n':
-					redraw();
 					++y;
 					// [[fall_through]
 				case '\r':
 					x = start_x;
-					break;
+					continue;
 				case '\t':
 					x += tab_stop_width;
 					x = (x/tab_stop_width)*tab_stop_width;
-					break;
-				default:
-					break;
+					continue;
 			}
 
 			if (x >= console_width())
@@ -142,7 +137,7 @@ namespace termwrap
 			}
 
 			if (y >= console_height())
-				throw text_overflow_error(); 
+				throw text_overflow_error();
 
 			const struct tb_cell* const native_buffer = tb_cell_buffer();
 			const struct tb_cell* const cell = native_buffer + y*width + x;
@@ -151,6 +146,20 @@ namespace termwrap
 			++x;
 		}
 
+	}
+
+	void driver::set_block_style(const ordinate_t min_x, const ordinate_t min_y, const ordinate_t max_x, const ordinate_t max_y, const cell_style& style)
+	{
+		const struct tb_cell* const native_buffer = tb_cell_buffer();
+		const ordinate_t width = console_width();
+		for (ordinate_t y = min_y; y <= max_y; ++y)
+		{
+			for (ordinate_t x = min_x; x <= max_x; ++x)
+			{
+				const struct tb_cell* const cell = native_buffer + y*width + x;
+				tb_change_cell(x, y, cell->ch, style.to_native_fg(), style.to_native_bg());
+			}
+		}
 	}
 
 	ordinate_t driver::console_height() const

@@ -1,4 +1,3 @@
-#include <csignal>
 #include <string>
 
 #include "driver.hpp"
@@ -36,8 +35,18 @@ class tui
 	}
 	void inspector()
 	{
-		const std::string fare_rules = /*"  V FARE BASIS     BK    FARE   TRAVEL-TICKET AP  MINMAX  RTG\n*/"  1   IENJSB         I   320.00     ----     21/1 SU/12M EH01\nPASSENGER TYPE-ADT                 AUTO PRICE-YES\n";//FROM-MAD TO-LON    CXR-IB    TVL-15OCT17  RULE-M602 IPREURP/21\nFARE BASIS-IENJSB            SPECIAL FARE  DIS-E   VENDOR-ATP\nFARE TYPE-BXR      RT-2ND LEVEL BUSINESS CLASS EXCURSION\nEUR   285.00  5000  E18OCT16 D-INFINITY   FC-IENJSB  FN-\nSYSTEM DATES - CREATED 17OCT16/1315  EXPIRES INFINITY\n.";
+		const std::string fare_rules = "  V FARE BASIS     BK    FARE   TRAVEL-TICKET AP  MINMAX  RTG\n  1   IENJSB         I   320.00     ----     21/1 SU/12M EH01\nPASSENGER TYPE-ADT                 AUTO PRICE-YES\nFROM-MAD TO-LON    CXR-IB    TVL-15OCT17  RULE-M602 IPREURP/21\nFARE BASIS-IENJSB            SPECIAL FARE  DIS-E   VENDOR-ATP\nFARE TYPE-BXR      RT-2ND LEVEL BUSINESS CLASS EXCURSION\nEUR   285.00  5000  E18OCT16 D-INFINITY   FC-IENJSB  FN-\nSYSTEM DATES - CREATED 17OCT16/1315  EXPIRES INFINITY\n.";
 		console.write_block_at(1,3, fare_rules);
+
+		cell_style highlight_style {};
+		highlight_style.weight = font_weight::bold;
+		highlight_style.foreground = color::green;
+
+		console.set_block_style(1,4, 81,4, highlight_style);
+		console.set_block_style(221-175,5, (224-175),5, highlight_style);
+		console.set_block_style(6,6, 8,6, highlight_style);
+		console.set_block_style(13,6, 15,6, highlight_style);
+		console.set_block_style(24,6, 25,6, highlight_style);
 	}
 	void flush()
 	{
@@ -47,7 +56,6 @@ class tui
 
 int main()
 {
-	std::raise(SIGSTOP);
 
 	tui ui;
 	ui.title_bar();
@@ -55,9 +63,9 @@ int main()
 	ui.menu_bar();
 	ui.inspector();
 	ui.flush();
-	
-	std::raise(SIGSTOP);
-	
+
+	while (true) ;	
+
 	return 0;
 }
 

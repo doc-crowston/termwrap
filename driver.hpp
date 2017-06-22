@@ -49,6 +49,8 @@ namespace termwrap
 		void write_block_at(ordinate_t x, ordinate_t y, const string& text);
 		void write_block_at(ordinate_t x, ordinate_t y, ordinate_t max_y, const string& text);
 		void write_block_at(ordinate_t x, ordinate_t y, ordinate_t max_x, ordinate_t max_y);
+		void set_block_style(const ordinate_t min_x, const ordinate_t min_y, const ordinate_t max_x, const ordinate_t max_y, const cell_style& style);
+
 		
 		// Cell-level display.
 		void set_cell_style(const ordinate_t x, const ordinate_t y, const cell_style& style);
