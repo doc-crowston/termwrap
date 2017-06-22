@@ -1,4 +1,6 @@
+#include <chrono>
 #include <string>
+#include <thread>
 
 #include "driver.hpp"
 
@@ -43,7 +45,7 @@ class tui
 		highlight_style.foreground = color::green;
 
 		console.set_block_style(1,4, 81,4, highlight_style);
-		console.set_block_style(221-175,5, (224-175),5, highlight_style);
+		console.set_block_style(46,5, 49,5, highlight_style);
 		console.set_block_style(6,6, 8,6, highlight_style);
 		console.set_block_style(13,6, 15,6, highlight_style);
 		console.set_block_style(24,6, 25,6, highlight_style);
@@ -51,6 +53,24 @@ class tui
 	void flush()
 	{
 		console.redraw();
+	}
+
+	void text_box()
+	{
+		const std::string query_label = "Fare query";
+		
+		const unsigned start_x = 0+query_label.length()+2;
+		const unsigned max_x   = start_x + 12;
+		const unsigned start_y = 14, max_y = start_y;
+
+		console.write_at(0, start_y, query_label);
+		
+		cell_style input_style;
+		input_style.decoration = text_decoration::underline;
+		input_style.background = color::cyan;
+		input_style.foreground = color::black;
+
+		console.set_block_style(start_x, start_y, max_x, max_y, input_style);
 	}
 };
 
@@ -64,8 +84,10 @@ int main()
 	ui.inspector();
 	ui.flush();
 
-	while (true) ;	
+	ui.text_box();
+	ui.flush();
 
-	return 0;
+	using namespace std::chrono_literals;
+	std::this_thread::sleep_for(15s);
 }
 

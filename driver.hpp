@@ -68,6 +68,8 @@ namespace termwrap
 		static native_char_t to_native_char(const char ch);
 		static char to_char(const native_char_t nch);
 
+		//bool peek_event
+
 		// Callbacks.
 		/*template <class Callable>
 		void on_width_change(Callable&& callback);
