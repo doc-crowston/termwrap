@@ -10,10 +10,13 @@
 #ifndef RHC_TERMWRAP_DRIVER_H
 #define RHC_TERMWRAP_DRIVER_H
 
+#include <chrono>
 #include <cstdint>
 #include <string>
 
+#include "impl/optional.hpp"
 #include "cell_style.hpp"
+#include "key_event.hpp"
 #include "error.hpp"
 
 namespace termwrap
@@ -21,6 +24,7 @@ namespace termwrap
 	using ordinate_t = std::uint_least16_t;
 	using native_char_t = std::uint32_t;
 	using string = std::string;
+	template <class T> using optional = impl::optional<T>;
 
 	//
 	// Driver interface.
@@ -67,8 +71,9 @@ namespace termwrap
 
 		static native_char_t to_native_char(const char ch);
 		static char to_char(const native_char_t nch);
-
-		//bool peek_event
+		
+		template <class Rep, class Period>
+		optional<key_event> wait_for_key_event(const std::chrono::duration<Rep, Period>& wait_duration = std::chrono::duration::max());
 
 		// Callbacks.
 		/*template <class Callable>

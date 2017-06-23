@@ -10,10 +10,12 @@
 #include "driver.hpp"
 
 #include <cassert>
+#include <chrono>
 #include <cstdint>
 #include <iostream>
 #include <string>
 #include "/opt/termbox/include/termbox.h"
+#include "impl/optional.hpp"
 
 namespace termwrap
 {
@@ -188,6 +190,12 @@ namespace termwrap
 		tb_utf8_unicode_to_char(&ch, nch);
 			//== 0 );
 		return ch;
+	}
+
+	template <class Rep, class Period>
+	optional<key_event> wait_for_key_event(const std::chrono::duration<Rep, Period>& wait_duration)
+	{
+		
 	}
 } // End of namespace termwrap.
 
