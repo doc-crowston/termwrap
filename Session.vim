@@ -2,13 +2,13 @@ let SessionLoad = 1
 let s:so_save = &so | let s:siso_save = &siso | set so=0 siso=0
 let v:this_session=expand("<sfile>:p")
 silent only
-cd ~/src/termwrap
+cd ~/Projects/termwrap
 if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
 set shortmess=aoO
-badd +1 driver.cpp
-badd +1 cell_style.cpp
+badd +140 driver.cpp
+badd +110 cell_style.cpp
 badd +40 cell_style.hpp
 badd +1 main.cpp
 badd +123 /opt/termbox/include/termbox.h
@@ -16,7 +16,9 @@ badd +49 driver.hpp
 badd +1 1
 badd +1 error.hpp
 badd +1 demo.cpp
-badd +0 impl/optional.hpp
+badd +15 impl/optional.hpp
+badd +0 key_event.hpp
+badd +0 types.hpp
 argglobal
 silent! argdel *
 argadd driver.cpp
@@ -37,7 +39,7 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 67 - ((39 * winheight(0) + 36) / 72)
+let s:l = 67 - ((23 * winheight(0) + 21) / 42)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -53,8 +55,8 @@ set nosplitbelow
 set nosplitright
 wincmd t
 set winminheight=1 winminwidth=1 winheight=1 winwidth=1
-exe 'vert 1resize ' . ((&columns * 119 + 118) / 237)
-exe 'vert 2resize ' . ((&columns * 117 + 118) / 237)
+exe 'vert 1resize ' . ((&columns * 79 + 79) / 158)
+exe 'vert 2resize ' . ((&columns * 78 + 79) / 158)
 argglobal
 setlocal fdm=manual
 setlocal fde=0
@@ -65,12 +67,12 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 110 - ((33 * winheight(0) + 36) / 72)
+let s:l = 41 - ((40 * winheight(0) + 21) / 42)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-110
-normal! 023|
+41
+normal! 09|
 wincmd w
 argglobal
 edit cell_style.hpp
@@ -83,15 +85,15 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 42 - ((41 * winheight(0) + 36) / 72)
+let s:l = 42 - ((41 * winheight(0) + 21) / 42)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
 42
 normal! 08|
 wincmd w
-exe 'vert 1resize ' . ((&columns * 119 + 118) / 237)
-exe 'vert 2resize ' . ((&columns * 117 + 118) / 237)
+exe 'vert 1resize ' . ((&columns * 79 + 79) / 158)
+exe 'vert 2resize ' . ((&columns * 78 + 79) / 158)
 tabedit demo.cpp
 set splitbelow splitright
 set nosplitbelow
@@ -108,7 +110,7 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 68 - ((48 * winheight(0) + 36) / 72)
+let s:l = 68 - ((28 * winheight(0) + 21) / 42)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -130,7 +132,7 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 238 - ((42 * winheight(0) + 36) / 72)
+let s:l = 238 - ((25 * winheight(0) + 21) / 42)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
@@ -146,8 +148,8 @@ set nosplitbelow
 set nosplitright
 wincmd t
 set winminheight=1 winminwidth=1 winheight=1 winwidth=1
-exe 'vert 1resize ' . ((&columns * 119 + 118) / 237)
-exe 'vert 2resize ' . ((&columns * 117 + 118) / 237)
+exe 'vert 1resize ' . ((&columns * 79 + 79) / 158)
+exe 'vert 2resize ' . ((&columns * 78 + 79) / 158)
 argglobal
 setlocal fdm=manual
 setlocal fde=0
@@ -158,12 +160,12 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 160 - ((20 * winheight(0) + 36) / 72)
+let s:l = 13 - ((12 * winheight(0) + 21) / 42)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-160
-normal! 092|
+13
+normal! 017|
 wincmd w
 argglobal
 edit driver.hpp
@@ -176,16 +178,17 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 1 - ((0 * winheight(0) + 36) / 72)
+let s:l = 72 - ((20 * winheight(0) + 21) / 42)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-1
-normal! 0
+72
+normal! 0174|
 wincmd w
-exe 'vert 1resize ' . ((&columns * 119 + 118) / 237)
-exe 'vert 2resize ' . ((&columns * 117 + 118) / 237)
-tabedit impl/optional.hpp
+2wincmd w
+exe 'vert 1resize ' . ((&columns * 79 + 79) / 158)
+exe 'vert 2resize ' . ((&columns * 78 + 79) / 158)
+tabedit types.hpp
 set splitbelow splitright
 set nosplitbelow
 set nosplitright
@@ -201,13 +204,35 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 15 - ((14 * winheight(0) + 36) / 72)
+let s:l = 21 - ((20 * winheight(0) + 21) / 42)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-15
-normal! 022|
-tabnext 6
+21
+normal! 017|
+tabedit key_event.hpp
+set splitbelow splitright
+set nosplitbelow
+set nosplitright
+wincmd t
+set winminheight=1 winminwidth=1 winheight=1 winwidth=1
+argglobal
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 13 - ((12 * winheight(0) + 21) / 42)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+13
+normal! 011|
+tabnext 5
 set stal=1
 if exists('s:wipebuf') && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'
   silent exe 'bwipe ' . s:wipebuf

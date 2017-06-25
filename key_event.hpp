@@ -10,6 +10,10 @@
 #ifndef RHC_TERMWRAP_KEY_EVENT_H
 #define RHC_TERMWRAP_KEY_EVENT_H
 
+#include <variant>
+
+#include "types.hpp"
+
 namespace termwrap
 {
 	enum class special_key
@@ -44,17 +48,16 @@ namespace termwrap
 
 	struct key_event
 	{
-		key_event(const native_char_t key, const bool ctrl = false, const bool alt = false)
+		key_event(const char key, const bool ctrl = false, const bool alt = false)
 			: key(key), ctrl(ctrl), alt(alt)
 		{ }
 		key_event(const special_key key, const bool ctrl = false, const bool alt = false)
 			: key(key), ctrl(ctrl), alt(alt)
 		{ }
-		key_event(const key_event other&) = default;
-		key_event operator= (const key_event other&) = default;
+		key_event(const key_event& ) = default;
+		key_event& operator= (const key_event& ) = default;
 
-		special_key skey;
-		native_char_t key;
+		std::variant<special_key, char> key;
 
 		bool ctrl;
 		bool alt;

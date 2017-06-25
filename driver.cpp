@@ -13,13 +13,14 @@
 #include <chrono>
 #include <cstdint>
 #include <iostream>
+#include <optional>
 #include <string>
+
 #include "/opt/termbox/include/termbox.h"
-#include "impl/optional.hpp"
+#include "types.hpp"
 
 namespace termwrap
 {
-
 	//
 	// Driver implementation (wrapper around termbox).
 	//
@@ -193,7 +194,7 @@ namespace termwrap
 	}
 
 	template <class Rep, class Period>
-	optional<key_event> wait_for_key_event(const std::chrono::duration<Rep, Period>& wait_duration)
+	std::optional<key_event> wait_for_key_event(const std::chrono::duration<Rep, Period>& wait_duration)
 	{
 		
 	}
