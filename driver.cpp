@@ -196,7 +196,7 @@ namespace termwrap
 	template <class Rep, class Period>
 	std::optional<key_event> wait_for_key_event(const std::chrono::duration<Rep, Period>& wait_duration)
 	{
-		
+		struct tb_event {};
 	}
 } // End of namespace termwrap.
 
