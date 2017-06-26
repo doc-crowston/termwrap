@@ -71,6 +71,43 @@ class tui
 		input_style.foreground = color::black;
 
 		console.set_block_style(start_x, start_y, max_x, max_y, input_style);
+
+		flush();
+
+		{
+			std::string input{};
+			unsigned cursor_position = 0;
+			do
+			{
+				console.write_at(start_x, start_y, input);
+				flush();
+				
+				using namespace std::chrono_literals;
+				const auto event = console.wait_for_key_event(1s);
+
+				if (!event)
+					continue;
+				
+				if (event->ctrl)
+				{
+					if (const auto ch = std::get_if<char>(&event->key))
+					{
+						if (*ch == 'c')
+							break;
+					}
+					continue;
+				}
+				
+				if (const auto key = std::get_if<special_key>(&event->key))
+					if (*key == special_key::enter)
+						break;
+
+				if (const auto ch = std::get_if<char>(&event->key))
+					input.insert(cursor_position++, 1, *ch);
+
+			}
+			while (true);
+		}
 	}
 };
 

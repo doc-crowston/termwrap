@@ -47,6 +47,15 @@ namespace termwrap
 	};
 
 	//
+	// Failed termbox function calls.
+	//
+	
+	struct failed_peek_poll_event : public driver_system_error
+	{
+		failed_peek_poll_event() : driver_system_error("Failed to peek or to poll an event.") { }
+	};
+
+	//
 	// Drawing exceptions.
 	// Used to signify draws that were not attempted, because the terminal is in the wrong mode or there is insufficient space.
 	//

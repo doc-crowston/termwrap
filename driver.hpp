@@ -48,7 +48,7 @@ namespace termwrap
 		// Block display.
 		void write_block_at(ordinate_t x, ordinate_t y, const string& text);
 		void write_block_at(ordinate_t x, ordinate_t y, ordinate_t max_y, const string& text);
-		void write_block_at(ordinate_t x, ordinate_t y, ordinate_t max_x, ordinate_t max_y);
+		void write_block_at(ordinate_t x, ordinate_t y, ordinate_t max_x, ordinate_t max_y, const string& text);
 		void set_block_style(const ordinate_t min_x, const ordinate_t min_y, const ordinate_t max_x, const ordinate_t max_y, const cell_style& style);
 
 		
@@ -69,7 +69,7 @@ namespace termwrap
 		static char to_char(const native_char_t nch);
 		
 		template <class Rep, class Period>
-		std::optional<key_event> wait_for_key_event(const std::chrono::duration<Rep, Period>& wait_duration = std::chrono::duration_values<std::chrono::milliseconds>::max);
+		std::optional<key_event> wait_for_key_event(const std::chrono::duration<Rep, Period>& wait_duration);
 
 		// Callbacks.
 		/*template <class Callable>
