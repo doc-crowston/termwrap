@@ -55,6 +55,15 @@ namespace termwrap
 		failed_peek_poll_event() : driver_system_error("Failed to peek or to poll an event.") { }
 	};
 
+	// 
+	// UTF-8 conversions.
+	//
+	
+	struct utf8_codepoint_too_wide_error : public std::runtime_error
+	{
+		utf8_codepoint_too_wide_error() : std::runtime_error("UTF-8 codepoint could not be narrowed to char.") { }
+	};
+
 	//
 	// Drawing exceptions.
 	// Used to signify draws that were not attempted, because the terminal is in the wrong mode or there is insufficient space.

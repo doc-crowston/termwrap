@@ -13,7 +13,7 @@
 
 namespace termwrap
 {
-	static constexpr native_style_t to_native_color(const color& c) noexcept
+	static constexpr native_style_t to_native_color(const color& c)
 	{
 		switch (c)
 		{
@@ -41,7 +41,7 @@ namespace termwrap
 		}
 	}
 
-	static constexpr color to_color(const native_style_t native_style) noexcept
+	static constexpr color to_color(const native_style_t native_style)
 	{
 		switch(native_style & 0xff)
 		{

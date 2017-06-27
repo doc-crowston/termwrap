@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <chrono>
 #include <string>
 #include <thread>
@@ -59,8 +60,10 @@ class tui
 	{
 		const std::string query_label = "Fare query";
 
+		const unsigned max_input_length = 12;
+
 		const unsigned start_x = 0+query_label.length()+2;
-		const unsigned max_x   = start_x + 12;
+		const unsigned max_x   = start_x + max_input_length - 1;
 		const unsigned start_y = 14, max_y = start_y;
 
 		console.write_at(0, start_y, query_label);
@@ -75,15 +78,41 @@ class tui
 		flush();
 
 		{
+			enum class insert_mode { overwrite, insert };
+			insert_mode mode = insert_mode::insert;
+
 			std::string input{};
-			unsigned cursor_position = 0;
-			do
+			std::size_t cursor_position = 0;
+			
+			auto draw_cursor = [&]
+			{
+				cursor_position = std::min<decltype(cursor_position)>( {input.length(), max_input_length-1, cursor_position} );
+				console.set_cursor_position(start_x+cursor_position, start_y);
+				flush();
+			};
+
+			auto draw_input = [&]
 			{
 				console.write_at(start_x, start_y, input);
-				flush();
+				if (max_input_length - input.length() > 0)
+					console.write_at(start_x+input.length(), start_y, std::string(max_input_length-input.length(), ' '));
+			};
+			
+			do
+			{
+				draw_input();
+				draw_cursor();
 
-				using namespace std::chrono_literals;
-				const auto event = console.wait_for_key_event(5s);
+				std::optional<key_event> event;
+				try
+				{
+					using namespace std::chrono_literals;
+					event = console.wait_for_key_event(5s);
+				}
+				catch (const utf8_codepoint_too_wide_error& )
+				{
+					continue;
+				}
 
 				if (!event)
 					continue;
@@ -93,20 +122,80 @@ class tui
 					if (const auto ch = std::get_if<char>(&event->key))
 					{
 						if (*ch == 'C')
-							break;
+							return;
 					}
 					continue;
 				}
 
 				if (const auto key = std::get_if<special_key>(&event->key))
-					if (*key == special_key::enter)
-						break;
+				{
+					switch(*key)
+					{
+						case special_key::enter:
+							return;
+
+						case special_key::arrow_left:
+							cursor_position -= (cursor_position > 0) ? 1 : 0;
+							draw_cursor();
+							break;
+						case special_key::arrow_right:
+							++cursor_position;
+							draw_cursor();
+							break;
+						case special_key::home:
+							cursor_position = 0;
+							draw_cursor();
+							break;
+						case special_key::end:
+							cursor_position = input.length();
+							draw_cursor();
+							break;
+
+						case special_key::del:
+							if (input.length() > 0 && cursor_position <= input.length())
+							{
+								input.erase(cursor_position, 1);
+								draw_input();
+								draw_cursor();
+							}
+							break;
+						case special_key::backspace:
+							if (input.length() > 0 && cursor_position > 0)
+							{
+								input.erase(cursor_position-1, 1);
+								--cursor_position;
+								draw_input();
+								draw_cursor();
+							}
+							break;
+
+						case special_key::insert:
+							mode = (mode == insert_mode::insert) ? insert_mode::overwrite : insert_mode::insert;
+							break;
+
+						default:
+							break;
+					}
+				}
+
+				if ((input.length() >= max_input_length && mode == insert_mode::insert) || cursor_position >= max_input_length)
+					continue;
 
 				if (const auto ch = std::get_if<char>(&event->key))
-					input.insert(cursor_position++, 1, *ch);
+				{
+					if (cursor_position == input.length())
+						input.push_back(*ch);
+					else if (mode == insert_mode::overwrite)
+						input[cursor_position] = *ch;
+					else // mode == insert_mode::insert
+						input.insert(cursor_position, 1, *ch);
+					++cursor_position;
+				}
 
 			}
 			while(true);
+			console.hide_cursor();
+			flush();
 		}
 	}
 };

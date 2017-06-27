@@ -178,19 +178,29 @@ namespace termwrap
 	native_char_t driver::to_native_char(const char ch)
 	{
 		native_char_t nch;
-		//assert(
 		tb_utf8_char_to_unicode(&nch, &ch);
-			//== 0 );
 		return nch;
 	}
 
 	char driver::to_char(const native_char_t nch)
 	{
 		char ch;
-		//assert(
-		tb_utf8_unicode_to_char(&ch, nch);
-			//== 0 );
+
+		const auto byte_length = tb_utf8_unicode_to_char(&ch, nch);
+		if (byte_length != 1)
+			throw utf8_codepoint_too_wide_error();
+
 		return ch;
+	}
+
+	void driver::hide_cursor()
+	{
+		tb_set_cursor(TB_HIDE_CURSOR, TB_HIDE_CURSOR);
+	}
+
+	void driver::set_cursor_position(const ordinate_t x, const ordinate_t y)
+	{
+		tb_set_cursor(x, y);
 	}
 
 	std::optional<key_event> driver::wait_for_key_event_impl(const unsigned wait_ms)
@@ -268,6 +278,7 @@ namespace termwrap
 				return key_event(' ', false, alt);
 			case TB_KEY_TAB:
 				return key_event(special_key::tab, false, alt);
+			case TB_KEY_BACKSPACE2:
 			case TB_KEY_BACKSPACE:
 				return key_event(special_key::backspace, false, alt);
 
@@ -338,8 +349,8 @@ namespace termwrap
 				return key_event('6', true, alt);
 			case TB_KEY_CTRL_7:
 				return key_event('7', true, alt);
-			case TB_KEY_CTRL_8:
-				return key_event('8', true, alt);
+			//case TB_KEY_CTRL_8:
+			//	return key_event('8', true, alt);
 
 			//case TB_KEY_CTRL_BACKSLASH:
 			//	return key_event('\\', true, alt);

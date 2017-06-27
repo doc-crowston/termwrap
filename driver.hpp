@@ -67,6 +67,9 @@ namespace termwrap
 
 		static native_char_t to_native_char(const char ch);
 		static char to_char(const native_char_t nch);
+
+		void hide_cursor();
+		void set_cursor_position(const ordinate_t x, const ordinate_t y);
 		
 	private:
 		std::optional<key_event> wait_for_key_event_impl(const unsigned wait_ms);
