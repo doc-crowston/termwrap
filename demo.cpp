@@ -64,7 +64,7 @@ class tui
 
 		const std::string query_label = "Fare query";
 
-		const size_t max_input_length = 92;
+		const size_t max_input_length = 25;
 		const size_t max_view_length = 22;
 
 		const unsigned start_x = 0+query_label.length()+2;
@@ -89,26 +89,26 @@ class tui
 			std::string input{};
 			std::size_t view_position = 0;
 			std::size_t cursor_position = 0;
-			
+
 			auto redraw_input = [&]
 			{
 				cursor_position = std::min( {input.length(), max_input_length-1, cursor_position} );
 
-				if (input.length() < max_view_length)
-					view_position = 0;
-				else if (view_position > input.length()-max_view_length)
-					view_position = input.length() - max_view_length;
-				else if (view_position > cursor_position)
-					view_position = cursor_position;
-				else if (view_position+max_view_length < cursor_position)
-					view_position = cursor_position-max_view_length;
+				const size_t pad_right = (input.length() < max_input_length) ? 1 : 0;
+				const size_t padded_length = input.length() + pad_right;
 
-				if (cursor_position == input.length() && input.length() >= max_view_length && input.length() < max_input_length)
-					++view_position;
+				if (padded_length < max_view_length)	// Too little text; no scrolling.
+					view_position = 0;
+				else if (view_position > padded_length-max_view_length)	// Scrolled too far to the right.
+					view_position = padded_length - max_view_length;
+				else if (view_position > cursor_position)	// Need to scroll left to find cursor.
+					view_position = cursor_position;
+				else if (view_position+max_view_length-1 < cursor_position)	// Need to scroll right to find the cursor.
+					view_position = cursor_position-max_view_length+1;
+
+				//if (cursor_position-view_position
 
 				const size_t cursor_view_position = cursor_position-view_position;
-
-				assert(cursor_view_position < max_view_length);
 
 				const auto input_view = std::string_view(&input[view_position], std::min(input.length()-view_position, max_view_length));
 
@@ -136,7 +136,7 @@ class tui
 			{
 				redraw_input();
 
-				const auto event = [&] () -> std::optional<key_event> 
+				const auto event = [&] () -> std::optional<key_event>
 				{
 					try
 					{
