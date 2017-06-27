@@ -58,13 +58,13 @@ class tui
 	void text_box()
 	{
 		const std::string query_label = "Fare query";
-		
+
 		const unsigned start_x = 0+query_label.length()+2;
 		const unsigned max_x   = start_x + 12;
 		const unsigned start_y = 14, max_y = start_y;
 
 		console.write_at(0, start_y, query_label);
-		
+
 		cell_style input_style;
 		input_style.decoration = text_decoration::underline;
 		input_style.background = color::cyan;
@@ -81,23 +81,23 @@ class tui
 			{
 				console.write_at(start_x, start_y, input);
 				flush();
-				
+
 				using namespace std::chrono_literals;
-				const auto event = console.wait_for_key_event(1s);
+				const auto event = console.wait_for_key_event(5s);
 
 				if (!event)
 					continue;
-				
+
 				if (event->ctrl)
 				{
 					if (const auto ch = std::get_if<char>(&event->key))
 					{
-						if (*ch == 'c')
+						if (*ch == 'C')
 							break;
 					}
 					continue;
 				}
-				
+
 				if (const auto key = std::get_if<special_key>(&event->key))
 					if (*key == special_key::enter)
 						break;
@@ -106,7 +106,7 @@ class tui
 					input.insert(cursor_position++, 1, *ch);
 
 			}
-			while (true);
+			while(true);
 		}
 	}
 };
@@ -124,7 +124,7 @@ int main()
 	ui.text_box();
 	ui.flush();
 
-	using namespace std::chrono_literals;
-	std::this_thread::sleep_for(15s);
+	//using namespace std::chrono_literals;
+	//std::this_thread::sleep_for(15s);
 }
 

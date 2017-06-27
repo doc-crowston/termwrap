@@ -183,7 +183,7 @@ namespace termwrap
 			//== 0 );
 		return nch;
 	}
-	
+
 	char driver::to_char(const native_char_t nch)
 	{
 		char ch;
@@ -193,26 +193,24 @@ namespace termwrap
 		return ch;
 	}
 
-	template <class Rep, class Period>
-	std::optional<key_event> driver::wait_for_key_event(const std::chrono::duration<Rep, Period>& wait_duration)
+	std::optional<key_event> driver::wait_for_key_event_impl(const unsigned wait_ms)
 	{
-		const auto wait_ms = std::chrono::duration_cast<std::chrono::milliseconds>(wait_duration).count();
 		struct tb_event native_event{};
 
 		const int state = tb_peek_event(&native_event, wait_ms);
-		
+
 		if (state < 0)
 			throw failed_peek_poll_event();
 		if (state == 0)
 			return {};
 		if (state != TB_EVENT_KEY)
 			return {};
-		
+
 		const bool alt = false; //native_event.mod & TB_MOD_ALT;
-		
+
 		if (native_event.ch)
 			return key_event(to_char(native_event.ch), false, alt);
-			
+
 		switch (native_event.key)
 		{
 			case TB_KEY_ESC:
@@ -226,7 +224,7 @@ namespace termwrap
 			case TB_KEY_F4:
 				return key_event(special_key::F4, false, alt);
 			case TB_KEY_F5:
-				return key_event(special_key::F5, false, alt); 
+				return key_event(special_key::F5, false, alt);
 			case TB_KEY_F6:
 				return key_event(special_key::F6, false, alt);
 			case TB_KEY_F7:
@@ -236,7 +234,7 @@ namespace termwrap
 			case TB_KEY_F9:
 				return key_event(special_key::F9, false, alt);
 			case TB_KEY_F10:
-				return key_event(special_key::F10, false, alt); 
+				return key_event(special_key::F10, false, alt);
 			case TB_KEY_F11:
 				return key_event(special_key::F11, false, alt);
 			case TB_KEY_F12:
@@ -247,14 +245,14 @@ namespace termwrap
 			case TB_KEY_DELETE:
 				return key_event(special_key::del, false, alt);
 			case TB_KEY_HOME:
-				return key_event(special_key::home, false, alt); 
+				return key_event(special_key::home, false, alt);
 			case TB_KEY_END:
 				return key_event(special_key::end, false, alt);
 			case TB_KEY_PGUP:
 				return key_event(special_key::page_up, false, alt);
 			case TB_KEY_PGDN:
 				return key_event(special_key::page_down, false, alt);
-			
+
 			case TB_KEY_ARROW_UP:
 				return key_event(special_key::arrow_up, false, alt);
 			case TB_KEY_ARROW_DOWN:
@@ -272,7 +270,7 @@ namespace termwrap
 				return key_event(special_key::tab, false, alt);
 			case TB_KEY_BACKSPACE:
 				return key_event(special_key::backspace, false, alt);
-			
+
 			case TB_KEY_CTRL_A:
 				return key_event('A', true, alt);
 			case TB_KEY_CTRL_B:
@@ -287,18 +285,18 @@ namespace termwrap
 				return key_event('F', true, alt);
 			case TB_KEY_CTRL_G:
 				return key_event('G', true, alt);
-			case TB_KEY_CTRL_H:
-				return key_event('H', true, alt);
-			case TB_KEY_CTRL_I:
-				return key_event('I', true, alt);
+			//case TB_KEY_CTRL_H:
+			//	return key_event('H', true, alt);
+			//case TB_KEY_CTRL_I:
+			//	return key_event('I', true, alt);
 			case TB_KEY_CTRL_J:
 				return key_event('J', true, alt);
 			case TB_KEY_CTRL_K:
 				return key_event('K', true, alt);
 			case TB_KEY_CTRL_L:
 				return key_event('L', true, alt);
-			case TB_KEY_CTRL_M:
-				return key_event('M', true, alt);
+			//case TB_KEY_CTRL_M:
+			//	return key_event('M', true, alt);
 			case TB_KEY_CTRL_N:
 				return key_event('N', true, alt);
 			case TB_KEY_CTRL_O:
@@ -326,12 +324,12 @@ namespace termwrap
 			case TB_KEY_CTRL_Z:
 				return key_event('Z', true, alt);
 
-			case TB_KEY_CTRL_TILDE:
-				return key_event('~', true, alt);
+			//case TB_KEY_CTRL_TILDE:
+			//	return key_event('~', true, alt);
 			case TB_KEY_CTRL_2:
 				return key_event('2', true, alt);
-			case TB_KEY_CTRL_3:
-				return key_event('3', true, alt);
+			//case TB_KEY_CTRL_3:
+			//	return key_event('3', true, alt);
 			case TB_KEY_CTRL_4:
 				return key_event('4', true, alt);
 			case TB_KEY_CTRL_5:
@@ -342,13 +340,13 @@ namespace termwrap
 				return key_event('7', true, alt);
 			case TB_KEY_CTRL_8:
 				return key_event('8', true, alt);
-		
-			case TB_KEY_CTRL_BACKSLASH:
-				return key_event('\\', true, alt);
-			case TB_KEY_CTRL_SLASH:
-				return key_event('/', true, alt);
-			case TB_KEY_CTRL_UNDERSCORE:
-				return key_event('_', true, alt);
+
+			//case TB_KEY_CTRL_BACKSLASH:
+			//	return key_event('\\', true, alt);
+			//case TB_KEY_CTRL_SLASH:
+			//	return key_event('/', true, alt);
+			//case TB_KEY_CTRL_UNDERSCORE:
+			//	return key_event('_', true, alt);
 
 			default:
 				assert(false);

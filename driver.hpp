@@ -28,7 +28,7 @@ namespace termwrap
 
 	class driver
 	{
-		public:
+	public:
 		driver();
 		~driver();
 
@@ -68,8 +68,17 @@ namespace termwrap
 		static native_char_t to_native_char(const char ch);
 		static char to_char(const native_char_t nch);
 		
+	private:
+		std::optional<key_event> wait_for_key_event_impl(const unsigned wait_ms);
+
+	public:
 		template <class Rep, class Period>
-		std::optional<key_event> wait_for_key_event(const std::chrono::duration<Rep, Period>& wait_duration);
+		std::optional<key_event> wait_for_key_event(const std::chrono::duration<Rep, Period>& wait_duration)
+		{
+			const auto wait_ms = std::chrono::duration_cast<std::chrono::milliseconds>(wait_duration).count();
+			return wait_for_key_event_impl(wait_ms);
+		}
+
 
 		// Callbacks.
 		/*template <class Callable>
