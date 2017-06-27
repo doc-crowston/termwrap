@@ -14,7 +14,6 @@
 #include <cstdint>
 #include <iostream>
 #include <optional>
-#include <string>
 
 #include "/opt/termbox/include/termbox.h"
 #include "types.hpp"
@@ -91,7 +90,7 @@ namespace termwrap
 		tb_change_cell(x, y, to_native_char(ch), style.to_native_fg(), style.to_native_bg());
 	}
 
-	void driver::write_at(ordinate_t x, const ordinate_t y, const string& text, const cell_style& style)
+	void driver::write_at(ordinate_t x, const ordinate_t y, const string_view& text, const cell_style& style)
 	{
 		if (text.length() > console_width() - x)
 			throw text_overflow_error();
@@ -99,7 +98,7 @@ namespace termwrap
 			tb_change_cell(x++, y, to_native_char(ch), style.to_native_fg(), style.to_native_bg());
 	}
 
-	void driver::write_at(ordinate_t x, const ordinate_t y, const string& text)
+	void driver::write_at(ordinate_t x, const ordinate_t y, const string_view& text)
 	{
 		if (text.length() > console_width() - x)
 			throw text_overflow_error();
@@ -112,7 +111,7 @@ namespace termwrap
 		}
 	}
 
-	void driver::write_block_at(const ordinate_t start_x, const ordinate_t start_y, const string& text)
+	void driver::write_block_at(const ordinate_t start_x, const ordinate_t start_y, const string_view& text)
 	{
 		ordinate_t x = start_x; ordinate_t y = start_y;
 		const auto width = console_width();

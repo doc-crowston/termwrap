@@ -1,6 +1,8 @@
 #include <algorithm>
+#include <cassert>
 #include <chrono>
 #include <string>
+#include <string_view>
 #include <thread>
 
 #include "driver.hpp"
@@ -58,12 +60,15 @@ class tui
 
 	void text_box()
 	{
+		using std::size_t;
+
 		const std::string query_label = "Fare query";
 
-		const unsigned max_input_length = 12;
+		const size_t max_input_length = 92;
+		const size_t max_view_length = 22;
 
 		const unsigned start_x = 0+query_label.length()+2;
-		const unsigned max_x   = start_x + max_input_length - 1;
+		const unsigned max_x   = start_x + max_view_length - 1;
 		const unsigned start_y = 14, max_y = start_y;
 
 		console.write_at(0, start_y, query_label);
@@ -82,37 +87,67 @@ class tui
 			insert_mode mode = insert_mode::insert;
 
 			std::string input{};
+			std::size_t view_position = 0;
 			std::size_t cursor_position = 0;
 			
-			auto draw_cursor = [&]
+			auto redraw_input = [&]
 			{
-				cursor_position = std::min<decltype(cursor_position)>( {input.length(), max_input_length-1, cursor_position} );
-				console.set_cursor_position(start_x+cursor_position, start_y);
+				cursor_position = std::min( {input.length(), max_input_length-1, cursor_position} );
+
+				if (input.length() < max_view_length)
+					view_position = 0;
+				else if (view_position > input.length()-max_view_length)
+					view_position = input.length() - max_view_length;
+				else if (view_position > cursor_position)
+					view_position = cursor_position;
+				else if (view_position+max_view_length < cursor_position)
+					view_position = cursor_position-max_view_length;
+
+				if (cursor_position == input.length() && input.length() >= max_view_length && input.length() < max_input_length)
+					++view_position;
+
+				const size_t cursor_view_position = cursor_position-view_position;
+
+				assert(cursor_view_position < max_view_length);
+
+				const auto input_view = std::string_view(&input[view_position], std::min(input.length()-view_position, max_view_length));
+
+				console.write_at(start_x, start_y, input_view);
+				if (max_view_length - input_view.length() > 0)
+					console.write_at(start_x+input_view.length(), start_y, std::string(max_view_length-input_view.length(), ' '));
+
+				console.set_cursor_position(start_x+cursor_view_position, start_y);
 				flush();
 			};
 
-			auto draw_input = [&]
+			auto cursor_left = [&]
 			{
-				console.write_at(start_x, start_y, input);
-				if (max_input_length - input.length() > 0)
-					console.write_at(start_x+input.length(), start_y, std::string(max_input_length-input.length(), ' '));
+				cursor_position -= (cursor_position > 0) ? 1 : 0;
+				redraw_input();
 			};
-			
-			do
-			{
-				draw_input();
-				draw_cursor();
 
-				std::optional<key_event> event;
-				try
+			auto cursor_right = [&]
+			{
+				cursor_position += (cursor_position < input.length()) ? 1 : 0;
+				redraw_input();
+			};
+
+			while(true)
+			{
+				redraw_input();
+
+				const auto event = [&] () -> std::optional<key_event> 
 				{
-					using namespace std::chrono_literals;
-					event = console.wait_for_key_event(5s);
-				}
-				catch (const utf8_codepoint_too_wide_error& )
-				{
-					continue;
-				}
+					try
+					{
+						using namespace std::chrono_literals;
+						return console.wait_for_key_event(5s);
+					}
+					catch (const utf8_codepoint_too_wide_error& )
+					{
+						return {};
+					}
+				}();
 
 				if (!event)
 					continue;
@@ -135,28 +170,25 @@ class tui
 							return;
 
 						case special_key::arrow_left:
-							cursor_position -= (cursor_position > 0) ? 1 : 0;
-							draw_cursor();
+							cursor_left();
 							break;
 						case special_key::arrow_right:
-							++cursor_position;
-							draw_cursor();
+							cursor_right();
 							break;
 						case special_key::home:
 							cursor_position = 0;
-							draw_cursor();
+							redraw_input();
 							break;
 						case special_key::end:
 							cursor_position = input.length();
-							draw_cursor();
+							redraw_input();
 							break;
 
 						case special_key::del:
 							if (input.length() > 0 && cursor_position <= input.length())
 							{
 								input.erase(cursor_position, 1);
-								draw_input();
-								draw_cursor();
+								redraw_input();
 							}
 							break;
 						case special_key::backspace:
@@ -164,8 +196,7 @@ class tui
 							{
 								input.erase(cursor_position-1, 1);
 								--cursor_position;
-								draw_input();
-								draw_cursor();
+								redraw_input();
 							}
 							break;
 
@@ -193,7 +224,6 @@ class tui
 				}
 
 			}
-			while(true);
 			console.hide_cursor();
 			flush();
 		}

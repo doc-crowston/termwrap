@@ -13,7 +13,7 @@
 #include <chrono>
 #include <cstdint>
 #include <optional>
-#include <string>
+#include <string_view>
 
 #include "cell_style.hpp"
 #include "key_event.hpp"
@@ -42,13 +42,13 @@ namespace termwrap
 		void redraw();
 
 		// Line display.		
-		void write_at(ordinate_t x, const ordinate_t y, const string& text);
-		void write_at(ordinate_t x, const ordinate_t y, const string& text, const cell_style& style);
+		void write_at(ordinate_t x, const ordinate_t y, const string_view& text);
+		void write_at(ordinate_t x, const ordinate_t y, const string_view& text, const cell_style& style);
 
 		// Block display.
-		void write_block_at(ordinate_t x, ordinate_t y, const string& text);
-		void write_block_at(ordinate_t x, ordinate_t y, ordinate_t max_y, const string& text);
-		void write_block_at(ordinate_t x, ordinate_t y, ordinate_t max_x, ordinate_t max_y, const string& text);
+		void write_block_at(ordinate_t x, ordinate_t y, const string_view& text);
+		void write_block_at(ordinate_t x, ordinate_t y, ordinate_t max_y, const string_view& text);
+		void write_block_at(ordinate_t x, ordinate_t y, ordinate_t max_x, ordinate_t max_y, const string_view& text);
 		void set_block_style(const ordinate_t min_x, const ordinate_t min_y, const ordinate_t max_x, const ordinate_t max_y, const cell_style& style);
 
 		

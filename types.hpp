@@ -12,12 +12,14 @@
 
 #include <cstdint>
 #include <string>
+#include <string_view>
 
 namespace termwrap
 {
 	using ordinate_t = std::uint_least16_t;
 	using native_char_t = std::uint32_t;
 	using string = std::string;
+	using string_view = std::string_view;
 } // End of namspace termwrap.
 
 #endif // !RHC_TERMWRAP_TYPES_H.
