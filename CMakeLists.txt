@@ -14,11 +14,13 @@ find_library(TERMBOX termbox /opt/termbox/lib)
 
 add_library(cell_style cell_style.cpp)
 add_library(driver driver.cpp)
+add_library(textbox textbox.cpp)
 target_link_libraries(driver cell_style)
 target_link_libraries(driver ${TERMBOX})
 target_link_libraries(cell_style ${TERMBOX})
-
+target_link_libraries(textbox driver)
 
 add_executable(demo demo.cpp)
 target_link_libraries(demo driver)
+target_link_libraries(demo textbox)
 

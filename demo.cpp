@@ -3,9 +3,9 @@
 #include <chrono>
 #include <string>
 #include <string_view>
-#include <thread>
 
 #include "driver.hpp"
+#include "textbox.hpp"
 
 using namespace termwrap;
 
@@ -78,154 +78,32 @@ class tui
 		input_style.background = color::cyan;
 		input_style.foreground = color::black;
 
-		console.set_block_style(start_x, start_y, max_x, max_y, input_style);
-
-		flush();
-
+		textbox input(console, start_x, start_y, max_view_length, max_input_length, input_style, input_style);
+		
+		while(!input.check_input_accepted())
 		{
-			enum class insert_mode { overwrite, insert };
-			insert_mode mode = insert_mode::insert;
-
-			std::string input{};
-			std::size_t view_position = 0;
-			std::size_t cursor_position = 0;
-
-			auto redraw_input = [&]
+			const auto event = [&] () -> std::optional<key_event>
 			{
-				cursor_position = std::min( {input.length(), max_input_length-1, cursor_position} );
-
-				const size_t pad_right = (input.length() < max_input_length) ? 1 : 0;
-				const size_t padded_length = input.length() + pad_right;
-
-				if (padded_length < max_view_length)	// Too little text; no scrolling.
-					view_position = 0;
-				else if (view_position > padded_length-max_view_length)	// Scrolled too far to the right.
-					view_position = padded_length - max_view_length;
-				else if (view_position > cursor_position)	// Need to scroll left to find cursor.
-					view_position = cursor_position;
-				else if (view_position+max_view_length-1 < cursor_position)	// Need to scroll right to find the cursor.
-					view_position = cursor_position-max_view_length+1;
-
-				//if (cursor_position-view_position
-
-				const size_t cursor_view_position = cursor_position-view_position;
-
-				const auto input_view = std::string_view(&input[view_position], std::min(input.length()-view_position, max_view_length));
-
-				console.write_at(start_x, start_y, input_view);
-				if (max_view_length - input_view.length() > 0)
-					console.write_at(start_x+input_view.length(), start_y, std::string(max_view_length-input_view.length(), ' '));
-
-				console.set_cursor_position(start_x+cursor_view_position, start_y);
-				flush();
-			};
-
-			auto cursor_left = [&]
-			{
-				cursor_position -= (cursor_position > 0) ? 1 : 0;
-				redraw_input();
-			};
-
-			auto cursor_right = [&]
-			{
-				cursor_position += (cursor_position < input.length()) ? 1 : 0;
-				redraw_input();
-			};
-
-			while(true)
-			{
-				redraw_input();
-
-				const auto event = [&] () -> std::optional<key_event>
+				try
 				{
-					try
-					{
-						using namespace std::chrono_literals;
-						return console.wait_for_key_event(5s);
-					}
-					catch (const utf8_codepoint_too_wide_error& )
-					{
-						return {};
-					}
-				}();
-
-				if (!event)
-					continue;
-
-				if (event->ctrl)
-				{
-					if (const auto ch = std::get_if<char>(&event->key))
-					{
-						if (*ch == 'C')
-							return;
-					}
-					continue;
+					using namespace std::chrono_literals;
+					return console.wait_for_key_event(5s);
 				}
-
-				if (const auto key = std::get_if<special_key>(&event->key))
+				catch (const utf8_codepoint_too_wide_error& )
 				{
-					switch(*key)
-					{
-						case special_key::enter:
-							return;
-
-						case special_key::arrow_left:
-							cursor_left();
-							break;
-						case special_key::arrow_right:
-							cursor_right();
-							break;
-						case special_key::home:
-							cursor_position = 0;
-							redraw_input();
-							break;
-						case special_key::end:
-							cursor_position = input.length();
-							redraw_input();
-							break;
-
-						case special_key::del:
-							if (input.length() > 0 && cursor_position <= input.length())
-							{
-								input.erase(cursor_position, 1);
-								redraw_input();
-							}
-							break;
-						case special_key::backspace:
-							if (input.length() > 0 && cursor_position > 0)
-							{
-								input.erase(cursor_position-1, 1);
-								--cursor_position;
-								redraw_input();
-							}
-							break;
-
-						case special_key::insert:
-							mode = (mode == insert_mode::insert) ? insert_mode::overwrite : insert_mode::insert;
-							break;
-
-						default:
-							break;
-					}
+					return {};
 				}
+			}();
 
-				if ((input.length() >= max_input_length && mode == insert_mode::insert) || cursor_position >= max_input_length)
-					continue;
+			if (!event)
+				continue;
 
+			if (event->ctrl)
 				if (const auto ch = std::get_if<char>(&event->key))
-				{
-					if (cursor_position == input.length())
-						input.push_back(*ch);
-					else if (mode == insert_mode::overwrite)
-						input[cursor_position] = *ch;
-					else // mode == insert_mode::insert
-						input.insert(cursor_position, 1, *ch);
-					++cursor_position;
-				}
-
-			}
-			console.hide_cursor();
-			flush();
+					if (*ch == 'C')
+						return;
+	
+			input.accept_key_event(*event);
 		}
 	}
 };
@@ -242,8 +120,5 @@ int main()
 
 	ui.text_box();
 	ui.flush();
-
-	//using namespace std::chrono_literals;
-	//std::this_thread::sleep_for(15s);
 }
 
