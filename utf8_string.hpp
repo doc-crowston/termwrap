@@ -25,7 +25,7 @@ namespace termwrap
 		StorageT raw_storage{};
 		using std::uint32_t;
 
-		public: 
+	public: 
 		using size_type = StorageT::size_type;
 		using npos = StorageT::npos;
 
@@ -37,19 +37,11 @@ namespace termwrap
 		utf8_string() noexcept { }
 		utf8_string(size_type count, const uint32_t cp)
 		{
-			for (; count > 0; --count)
-				utf8::append(std::back_inserter(raw_storage), cp);
+			assign(count, cp);
 		}
 		utf8_string(const utf8_string& other, size_type pos, size_type count = npos)
 		{
-			auto begin = other.cbegin();
-			std::advance(begin, pos);
-			
-			count = std::min({count, other.size()-pos});
-			auto end = begin;
-			std::advance(end, count);
-
-			utf32to8(begin, end, std::back_inserter(raw_storage));
+			assign(other, pos, count);
 		}
 		utf8_string(const StorageT& other, size_type pos, size_type count = npos)
 		{
@@ -76,7 +68,7 @@ namespace termwrap
 			utf8::utf32to8(first, last, std::back_inserter(raw_storage));
 		}
 		utf8_string(const utf_string& other) = default;
-		utf8_string(const StorageT& other) : raw_storage(other) { }
+		utf8_string(const StorageT& other) : raw_storage.assign(other) { }
 		utf8_string(utf_string&& other) = default;
 		utf8_string(std::initializer_list<uint32_t> init)
 		{
@@ -87,10 +79,36 @@ namespace termwrap
 		
 		~utf8_string() = default;
 		utf8_string& operator=(const utf8_string& other) = default;
-		utf8_string& operator=(const StorageT& other) : raw_storage(other) { }
-
+		utf8_string& operator=(const StorageT& other) : raw_storage.assign(other) { }
 		
+		// 
+		// Assignment.
+		//
+		utf8_string& assign(size_type count, const uint32_t cp)
+		{
+			raw_storage.clear();
+			for (; count > 0; --count)
+				utf8::append(std::back_inserter(raw_storage), cp);
+			return *this;
+		}
+		utf8_string& assign(const utf8_string& str)
+		{
+			raw_storage.assign(str.raw_storage);
+			return *this;
+		}
+		utf8_string& assign(const utf8_string& str, size_type pos, size_type count = npos)
+		{
+			raw_storage.clear();
+			auto begin = str.cbegin();
+			std::advance(begin, pos);
+			
+			count = std::min({count, str.size()-pos});
+			auto end = begin;
+			std::advance(end, count);
 
+			utf32to8(begin, end, std::back_inserter(raw_storage));
+			return *this;
+		}
 		
 	}; // End of class utf8_string.
 
