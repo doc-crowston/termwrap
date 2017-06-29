@@ -28,41 +28,41 @@ namespace termwrap
 		const size_t pad_right = (content.length() < max_content_length) ? 1 : 0;
 		const size_t padded_length = content.length() + pad_right;
 
-		if (padded_length < max_view_length)	// Too little text; no scrolling.
+		if (padded_length < display_width)	// Too little text; no scrolling.
 			view_position = 0;
-		else if (view_position > padded_length-max_view_length)	// Scrolled too far to the right.
-			view_position = padded_length - max_view_length;
+		else if (view_position > padded_length-display_width)	// Scrolled too far to the right.
+			view_position = padded_length - display_width;
 		else if (view_position > cursor_position)	// Need to scroll left to find cursor.
 			view_position = cursor_position;
-		else if (view_position+max_view_length-1 < cursor_position)	// Need to scroll right to find the cursor.
-			view_position = cursor_position-max_view_length+1;
+		else if (view_position+display_width-1 < cursor_position)	// Need to scroll right to find the cursor.
+			view_position = cursor_position-display_width+1;
 
 		const size_t effective_view_position = (has_focus) ? view_position : 0;
 		const size_t cursor_view_position = cursor_position-view_position;
-		const auto content_view = std::string_view(&content[effective_view_position], std::min(content.length()-effective_view_position, max_view_length));
+		const auto content_view = std::string_view(&content[effective_view_position], std::min<size_t>(content.length()-effective_view_position, display_width));
 
 		parent.write_at(begin_x, begin_y, content_view, filled_style);
 		
-		if (max_view_length - content_view.length() > 0)
-			parent.write_at(start_x+content_view.length(), start_y, std::string(max_view_length-content_view.length(), ' ', unfilled_style));
+		if (display_width - content_view.length() > 0)
+			parent.write_at(begin_x+content_view.length(), begin_y, std::string(display_width-content_view.length(), ' '), unfilled_style);
 
 		if (has_focus)
-			parent.set_cursor_position(start_x+cursor_view_position, start_y);
+			parent.set_cursor_position(begin_x+cursor_view_position, begin_y);
 
-		parent.flush();
-	};
+		parent.redraw();
+	}
 
 	void textbox::cursor_left()
 	{
 		cursor_position -= (cursor_position > 0) ? 1 : 0;
 		redraw();
-	};
+	}
 
 	void textbox::cursor_right()
 	{
 		cursor_position += (cursor_position < content.length()) ? 1 : 0;
 		redraw();
-	};
+	}
 
 	void textbox::cursor_home()
 	{
@@ -70,7 +70,7 @@ namespace termwrap
 		redraw();
 	}
 
-	void cursor_end();
+	void textbox::cursor_end()
 	{
 		cursor_position = content.length();
 		redraw();
@@ -91,10 +91,12 @@ namespace termwrap
 
 	void textbox::accept_key_event(const key_event& event)
 	{
+		set_focus();
+		
 		if (event.ctrl)
 			return;
 	
-		if (const auto key = std::get_if<special_key>(&event->key))
+		if (const auto key = std::get_if<special_key>(&event.key))
 		{
 			switch(*key)
 			{
@@ -144,7 +146,7 @@ namespace termwrap
 		if ((content.length() >= max_content_length && mode == insert_mode::insert) || cursor_position >= max_content_length)
 			return;
 
-		if (const auto ch = std::get_if<char>(&event->key))
+		if (const auto ch = std::get_if<char>(&event.key))
 		{
 			if (cursor_position == content.length())
 				content.push_back(*ch);
@@ -155,6 +157,7 @@ namespace termwrap
 			++cursor_position;
 		}
 
+		redraw();
 	}
 	
 	textbox::~textbox()

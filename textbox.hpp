@@ -26,7 +26,7 @@ namespace termwrap
 		
 		const ordinate_t begin_x;
 		const ordinate_t begin_y;
-		constexpr ordinate_t end_x() { return begin_x + max_view_length - 1; }
+		ordinate_t end_x() { return begin_x + display_width - 1; }
 
 		cell_style unfilled_style{};
 		cell_style filled_style{};
@@ -51,22 +51,28 @@ namespace termwrap
 
 	public:
 		textbox(driver& parent, const ordinate_t start_x, const ordinate_t start_y, const ordinate_t display_width, const size_t max_content_length, const cell_style& unfilled_style, const cell_style& filled_style);
+		textbox(const textbox& ) = delete;
+		textbox(textbox&& ) = default;
+		textbox& operator= (const textbox& ) = delete;
+		textbox& operator= (textbox && ) = default;
+		~textbox();
 
 		void set_content(const string_view& content);
-		string_view get_content() const noexcept { return content; }
+		string_view get_content() noexcept { return content; }
 
-		constexpr bool check_input_accepted() noexcept { return input_accepted; } 
+		bool check_input_accepted() noexcept { return input_accepted; } 
 
-		void set_focus(const bool focus);		constexpr bool check_has_focus() noexcept { return has_focus; }
+		void set_focus(const bool focus = true);
+		bool check_has_focus() noexcept { return has_focus; }
 
 		void set_mode(const insert_mode mode_) noexcept { mode = mode_; }
-		constexpr insert_mode get_mode() const noexcept { return mode; }
+		insert_mode get_mode() const noexcept { return mode; }
 		
 		void set_view_position(const size_t position) noexcept { view_position = position; }
-		constexpr size_t get_view_position() noexcept const { return view_position; }
+		size_t get_view_position() noexcept { return view_position; }
 
-		void set_cursor_position(const size_t cursor_positon) noexcept { return cursor_position; }
-		constexpr size_t get_cursor_position() noexcept const { return cursor_position; }
+		void set_cursor_position(const size_t position) noexcept { cursor_position = position; }
+		size_t get_cursor_position() noexcept { return cursor_position; }
 
 		void redraw();
 		

@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.4.0 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.8.0 FATAL_ERROR)
 
 project (TermWrap)
 
@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -ggdb")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -ggdb -Wfatal-errors")
 
 find_library(TERMBOX termbox /opt/termbox/lib)
 

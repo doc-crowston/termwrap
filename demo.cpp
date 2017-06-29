@@ -64,12 +64,11 @@ class tui
 
 		const std::string query_label = "Fare query";
 
-		const size_t max_input_length = 25;
+		const size_t max_input_length = 22;
 		const size_t max_view_length = 22;
 
 		const unsigned start_x = 0+query_label.length()+2;
-		const unsigned max_x   = start_x + max_view_length - 1;
-		const unsigned start_y = 14, max_y = start_y;
+		const unsigned start_y = 14;
 
 		console.write_at(0, start_y, query_label);
 
@@ -79,7 +78,8 @@ class tui
 		input_style.foreground = color::black;
 
 		textbox input(console, start_x, start_y, max_view_length, max_input_length, input_style, input_style);
-		
+		input.set_focus();
+
 		while(!input.check_input_accepted())
 		{
 			const auto event = [&] () -> std::optional<key_event>

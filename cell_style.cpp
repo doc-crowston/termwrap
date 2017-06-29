@@ -79,7 +79,7 @@ namespace termwrap
 			case font_weight::bold:
 				return TB_BOLD;
 		}
-		//__builtin_unreachable();
+		__builtin_unreachable();
 	}
 
 	static constexpr native_style_t to_native_decoration(const text_decoration& d)
@@ -91,7 +91,7 @@ namespace termwrap
 			case text_decoration::underline:
 				return TB_UNDERLINE;
 		}
-		//__builtin_unreachable();
+		__builtin_unreachable();
 	}
 	
 	cell_style::cell_style(const native_style_t fg, const native_style_t bg)
