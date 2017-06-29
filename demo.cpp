@@ -82,7 +82,7 @@ class tui
 
 		while(!input.check_input_accepted())
 		{
-			const auto event = [&] () -> std::optional<key_event>
+			const auto event = [&]() -> std::optional<key_event>
 			{
 				try
 				{
