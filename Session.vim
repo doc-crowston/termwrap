@@ -7,8 +7,8 @@ if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
 set shortmess=aoO
-badd +187 driver.cpp
-badd +41 cell_style.cpp
+badd +25 driver.cpp
+badd +42 cell_style.cpp
 badd +40 cell_style.hpp
 badd +1 main.cpp
 badd +131 /opt/termbox/include/termbox.h
@@ -23,6 +23,8 @@ badd +194 /opt/gcc-7.1.0/include/c++/7.1.0/chrono
 badd +3700 ~/.gdbinit
 badd +11 CMakeLists.txt
 badd +1 ~/src/termbox/src/utf8.c
+badd +0 utf8_string.hpp
+badd +0 /opt/utf8/source/utf8/checked.h
 argglobal
 silent! argdel *
 argadd driver.cpp
@@ -48,7 +50,7 @@ if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
 64
-normal! 04|
+normal! 0
 tabedit /opt/termbox/include/termbox.h
 set splitbelow splitright
 set nosplitbelow
@@ -163,7 +165,56 @@ if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
 100
-normal! 073|
+normal! 0
+tabedit /opt/utf8/source/utf8/checked.h
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+set nosplitbelow
+set nosplitright
+wincmd t
+set winminheight=1 winminwidth=1 winheight=1 winwidth=1
+exe 'vert 1resize ' . ((&columns * 84 + 79) / 158)
+exe 'vert 2resize ' . ((&columns * 73 + 79) / 158)
+argglobal
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 59 - ((16 * winheight(0) + 21) / 42)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+59
+normal! 011|
+wincmd w
+argglobal
+edit utf8_string.hpp
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 131 - ((1 * winheight(0) + 21) / 42)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+131
+normal! 0
+wincmd w
+exe 'vert 1resize ' . ((&columns * 84 + 79) / 158)
+exe 'vert 2resize ' . ((&columns * 73 + 79) / 158)
 tabedit types.hpp
 set splitbelow splitright
 set nosplitbelow
@@ -185,7 +236,7 @@ if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
 22
-normal! 041|
+normal! 04|
 tabedit key_event.hpp
 set splitbelow splitright
 set nosplitbelow
@@ -235,7 +286,7 @@ if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
 74
-normal! 04|
+normal! 0
 wincmd w
 argglobal
 edit cell_style.hpp
@@ -253,7 +304,7 @@ if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
 63
-normal! 04|
+normal! 0
 wincmd w
 exe 'vert 1resize ' . ((&columns * 79 + 79) / 158)
 exe 'vert 2resize ' . ((&columns * 78 + 79) / 158)
@@ -279,7 +330,7 @@ exe s:l
 normal! zt
 11
 normal! 069|
-tabnext 5
+tabnext 6
 set stal=1
 if exists('s:wipebuf') && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'
   silent exe 'bwipe ' . s:wipebuf
