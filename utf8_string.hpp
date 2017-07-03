@@ -30,7 +30,7 @@ namespace termwrap
 	private:
 		storage_t raw_storage{};
 
-	public: 
+	public:
 		using size_type = storage_t::size_type;
 		using npos = storage_t::npos;
 
@@ -40,7 +40,7 @@ namespace termwrap
 		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 		// Trying to emulate the specification of std::basic_string.
-		
+
 		//
 		// Constructors.
 		//
@@ -86,12 +86,12 @@ namespace termwrap
 		}
 		//explicit utf8_string(utf8_string_view sv) : utf8_string(sv.data(), sv.size())
 		//{ }
-		
+
 		~utf8_string() = default;
 		utf8_string& operator=(const utf8_string& other) = default;
 		utf8_string& operator=(const StorageT& other) : raw_storage.assign(other) { }
-		
-		// 
+
+		//
 		// Assignment.
 		//
 		utf8_string& assign(size_type count, const uint32_t cp)
@@ -111,7 +111,7 @@ namespace termwrap
 			raw_storage.clear();
 			auto begin = str.cbegin();
 			std::advance(begin, pos);
-			
+
 			count = std::min({count, str.size()-pos});
 			auto end = begin;
 			std::advance(end, count);
@@ -130,7 +130,7 @@ namespace termwrap
 			while (*cps)
 				utf8::append(std::back_inserter(raw_storage), *cps++);
 		}
-		utf8_string& assign(utf8::iterator& first, const utf8::iterator& last)
+		utf8_string& assign(const_iterator& first, const const_iterator& last)
 		{
 			raw_storage.clear();
 			utf8::utf32to8(first, last, std::back_inserter(raw_storage));
@@ -151,7 +151,7 @@ namespace termwrap
 		{
 			auto it = cbegin();
 			std::advance(it, pos);
-			return *it; 
+			return *it;
 		}
 		uint32_t operator[](const size_type pos) const
 		{
@@ -263,39 +263,213 @@ namespace termwrap
 		{
 			raw_storage.clear();
 		}
-		utf8_string& insert(const size_type index, size_type count, uint32_t cp)
+	private:
+		const_iterator get_iterator_at(const size_type index) const
 		{
 			auto it = cbegin();
 			std::advance(it, index);
+			return it;
+		}
+		const_iterator get_end_iterator(const const_iterator begin, const size_type count = npos) const
+		{
+			if (count == npos)
+				return cend();
+			else
+			{
+				auto end = begin;
+				std::advance(end, count);
+				return end;
+			}
+		}
+	public:
+		utf8_string& insert(const size_type index, size_type count, uint32_t cp)
+		{
+			auto it = get_iterator_at(index);
 			for (; count > 0; --count)
 				utf8::append(cp, std::inserter(raw_storage, it.base()));
 			return *this;
 		}
 		utf8_string& insert(const size_type index, const uint32_t* cps)
 		{
-			auto it = cbegin();
-			std::advance(it, index);
+			auto it = get_iterator_at(index);
 			while (*cps)
 				utf8::append(*cps++, std::inserter(raw_storage, it.base()));
 			return *this;
 		}
 		utf8_string& insert(const size_type index, const uint32_t* cps, size_type count)
 		{
-			auto it = cbegin();
-			std::advance(it, index);
+			auto it = get_iterator_at(index);
 			for(; count > 0; --count)
 				utf8::append(*cps++, std::inserter(raw_storage, it.base()));
 			return *this;
 		}
-		utf8_string& insert(const size_type index, const utf8_string& other)
+		utf8_string& insert(const size_type index, const utf8_string& str)
 		{
-			auto it = cbegin();
-			std::advance(it, index);
-			raw_storage.insert(it.base(), other.raw_storage);
+			auto it = get_iterator_at(index);
+			raw_storage.insert(it.base(), str.raw_storage);
 			return *this;
 		}
-		
+		utf8_string& insert(const size_type index, const utf8_string& str, const size_type index_str, size_type count = npos)
+		{
+			auto it = get_iterator_at(index);
+			auto begin = str.get_iterator_at(index_str);
+			auto end = str.get_end_iterator(begin, count);
+			utf32to8(begin, end, std::inserter(raw_storage, it.base()));
+			return *this;
+		}
+		iterator insert(const_iterator pos, uint32_t cp)
+		{
+			utf8::append(cp, std::inserter(raw_storage, pos.base()));
+			return pos;
+		}
+		template <class InputIt>
+		iterator insert(const_iterator pos, InputIt first, InputIt last)
+		{
+			return raw_storage.insert(pos, first, last);
+		}
+		template <>
+		iterator insert(const_iterator pos, const_iterator first, const const_iterator last)
+		{
+			utf8::utf32to8(first, last, std::inserter(raw_storage, pos.base()));
+			return pos;
+		}
+		iterator insert(const_iterator pos, const std::initializer_list<uint32_t> ilist)
+		{
+			utf8::utf32to8(ilist.begin(), ilist.end(), std::inserter(raw_storage, pos.base()));
+			return pos;
+		}
+		//utf8_string& insert(const size_type pos, utf8_string_view& sv)
+		//template <class T>
+		//utf8_string& insert(const size_type index, const T& t, size_type index_str, size_type count = npos);
+		basic_string& erase(const size_type index = 0, const size_type = npos)
+		{
+			auto begin = get_iterator_at(index);
+			auto end = get_end_iterator(begin, index);
+			raw_storage.erase(begin, end);
+			return *this;
+		}
+		iterator erase(const_iterator pos) noexcept
+		{
+			auto begin = pos.base();
+			utf8::unchecked::next(pos.base());
+			return iterator(raw_storage.erase(begin, pos));
+		}
+		iterator erase(const_iterator first, const_iterator last) noexcept
+		{
+			return iterator(raw_storage.erase(first.base(), last.base());
+		}
+		void push_back(uint32_t cp)
+		{
+			utf8::append(cp, std::back_inserter(raw_storage));
+		}
+		void pop_back()
+		{
+			auto it = raw_storage.cend();
+			utf8::unchecked::prior(it);
+			raw_storage.erase(it, raw_storage.cend());
+		}
+		utf8_string& append(size_type count, uint32_t cp)
+		{
+			for (; count > 0; --count)
+				utf8::append(cp, std::back_inserter(raw_storage));
+			return *this;
+		}
+		utf8_string& append(const uint32_t* cps)
+		{
+			while (*cps)
+				utf8::append(*cps++, std::back_inserter(raw_storage));
+			return *this;
+		}
+		utf8_string& append(const uint32_t* cps, size_type count)
+		{
+			for(; count > 0; --count)
+				utf8::append(*cps++, std::back_inserter(raw_storage));
+			return *this;
+		}
+		utf8_string& append(const utf8_string& str)
+		{
+			raw_storage.append(str.raw_storage);
+			return *this;
+		}
+		utf8_string& append(const utf8_string& str, const size_type index_str, size_type count = npos)
+		{
+			auto begin = str.get_iterator_at(index_str);
+			auto end = str.get_end_iterator(begin, count);
+			utf32to8(begin, end, std::back_inserter(raw_storage));
+			return *this;
+		}
+		template <class InputIt>
+		utf8_string& append(InputIt first, InputIt last)
+		{
+			raw_storage.append(pos, first, last);
+			return *this;
+		}
+		template <>
+		utf8_string& append(const_iterator first, const const_iterator last)
+		{
+			utf8::utf32to8(first, last, std::back_inserter(raw_storage));
+			return *this;
+		}
+		utf8_string append(const std::initializer_list<uint32_t>& ilist)
+		{
+			utf8::utf32to8(ilist.begin(), ilist.end(), std::back_inserter(raw_storage));
+			return *this;
+		}
+		//utf8_string& append(utf8_string_view& sv)
+		//template <class T>
+		//utf8_string& append(const T& t, size_type index_str, size_type count = npos);
+		utf8_string& operator+=(const utf8_string& str)
+		{
+			return append(str);
+		}
+		utf8_string& operator+=(const uint32_t cp)
+		{
+			push_back(cp);
+			return *this;
+		}
+		utf8_string& operator+=(uint32_t* const cps)
+		{
+			return append(cps);
+		}
+		utf8_string& operator+=(const std::initializer_list<uint32_t>& ilist)
+		{
+			return append(ilist);
+		}
+		//utf8_string& operator+=(const utf8_string_view& sv);
+		int compare(const utf8_string& str) const noexcept
+		{
+			return raw_storage.compare(str.raw_storage);
+		}
+		int compare(const size_type pos1, const size_type count1, const utf8_string& str, const size_type pos2 = 0, const size_type count2 = npos) const
+		{
+			auto begin = get_iterator_at(pos1);
+			auto end = get_end_iterator(begin, count1);
+			auto str_begin = str.get_iterator_at(pos2);
+			auto str_end = get_end_iterator(str_begin, count2);
 
+			utf8_string temporary(begin, end);
+			utf8_string temporary_str(str_begin, str_end);
+
+			return temporary.compare(temporary_str);
+		}
+		int compare(const uint32_t* const cps) const
+		{
+			utf8_string temporary(cps);
+			return compare(temporary);
+		}
+		int compare(const size_type pos1, const size_type count1, const uint32_t* const cps) const
+		{
+			utf8_string temporary(cps);
+			return compare(pos1, count1, temporary);
+		}
+		int compare(const size_type pos1, const size_type count1, const uint32_t* const cps, const size_type count2) const
+		{
+			utf8_string temporary(cps, count2);
+			return compare(pos1, count1, temporary);
+		}
+		// int compare ... string_view
+		// replace
+		//
 
 	}; // End of class utf8_string.
 
