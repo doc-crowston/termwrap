@@ -21,18 +21,19 @@
 
 namespace termwrap
 {
+	using std::uint32_t;
+
 	class utf8_string
 	{
 	public:
 		using storage_t = std::string;
-		using std::uint32_t;
 
 	private:
 		storage_t raw_storage{};
 
 	public:
 		using size_type = storage_t::size_type;
-		using npos = storage_t::npos;
+		static constexpr auto npos = storage_t::npos;
 
 		using iterator = utf8::unchecked::iterator<storage_t::iterator>;
 		using const_iterator = utf8::unchecked::iterator<storage_t::const_iterator>;
@@ -55,31 +56,31 @@ namespace termwrap
 		}
 		utf8_string(const storage_t& other, size_type pos, size_type count = npos)
 		{
-			raw_storage(storage_t(other.raw_storage, pos, count));
+			raw_storage.assign(storage_t(other, pos, count));
 		}
-		utf8_string(uint32_t* const cps, size_type count)
+		utf8_string(const uint32_t* cps, size_type count)
 		{
 			for (; count > 0; --count)
-				utf8::append(std::back_inserter(raw_storage), *cps++);
+				utf8::append(*cps++, std::back_inserter(raw_storage));
 		}
-		utf8_string(uint32_t* const cps)
+		utf8_string(const uint32_t* cps)
 		{
 			while (*cps)
-				utf8::append(std::back_inserter(raw_storage), *cps++);
+				utf8::append(*cps++, std::back_inserter(raw_storage));
 		}
-		template <class InputIt> // enableif = not utf8
+		template <class InputIt>
 		utf8_string(InputIt first, InputIt last)
 		{
-			std::copy(first, last, std::back_inserter(raw_storage))
+			std::copy(first, last, std::back_inserter(raw_storage));
 		}
-		template <>
-		utf8_string<utf8::iterator>(utf8::iterator& first, const utf8::iterator& last)
+		/*template <>
+		utf8_string(utf8::iterator& first, const utf8::iterator& last)
 		{
 			utf8::utf32to8(first, last, std::back_inserter(raw_storage));
-		}
-		utf8_string(const utf_string& other) = default;
-		utf8_string(const StorageT& other) : raw_storage.assign(other) { }
-		utf8_string(utf_string&& other) = default;
+		}*/
+		utf8_string(const utf8_string& other) = default;
+		utf8_string(const storage_t& other) : raw_storage(other) { }
+		utf8_string(utf8_string&& other) = default;
 		utf8_string(const std::initializer_list<uint32_t> init)
 		{
 			utf8::utf32to8(init.begin(), init.end(), std::back_inserter(raw_storage));
@@ -89,7 +90,7 @@ namespace termwrap
 
 		~utf8_string() = default;
 		utf8_string& operator=(const utf8_string& other) = default;
-		utf8_string& operator=(const StorageT& other) : raw_storage.assign(other) { }
+		utf8_string& operator=(const storage_t& other) { raw_storage.assign(other); return *this; }
 
 		//
 		// Assignment.
@@ -98,7 +99,7 @@ namespace termwrap
 		{
 			raw_storage.clear();
 			for (; count > 0; --count)
-				utf8::append(std::back_inserter(raw_storage), cp);
+				utf8::append(cp, std::back_inserter(raw_storage));
 			return *this;
 		}
 		utf8_string& assign(const utf8_string& str)
@@ -124,21 +125,24 @@ namespace termwrap
 			*this = std::move(str);
 			return *this;
 		}
-		utf8_string& assign(const uint32_t* const cps)
+		utf8_string& assign(const uint32_t* cps)
 		{
 			raw_storage.clear();
 			while (*cps)
-				utf8::append(std::back_inserter(raw_storage), *cps++);
+				utf8::append(*cps++, std::back_inserter(raw_storage));
+			return *this;
 		}
 		utf8_string& assign(const_iterator& first, const const_iterator& last)
 		{
 			raw_storage.clear();
 			utf8::utf32to8(first, last, std::back_inserter(raw_storage));
+			return *this;
 		}
 		utf8_string& assign(const std::initializer_list<uint32_t> init)
 		{
 			raw_storage.clear();
 			utf8::utf32to8(init.begin(), init.end(), std::back_inserter(raw_storage));
+			return *this;
 		}
 		//utf8_string& assign(utf8_string_view sv) { utf8_string(sv.data(), sv.size())}
 		//{ }
@@ -159,25 +163,26 @@ namespace termwrap
 		}
 		uint32_t front() const
 		{
-			return validate_next(cbegin());
+			auto it = cbegin();
+			return utf8::unchecked::next(it);
 		}
 		uint32_t back() const
 		{
 			auto it = cend();
 			--it;
-			return validate_next(it);
+			return utf8::unchecked::next(it);
 		}
 		char* data()
 		{
-			return storage.data();
+			return raw_storage.data();
 		}
 		const char* data() const
 		{
-			return storage.data();
+			return raw_storage.data();
 		}
 		const char* c_str() const
 		{
-			return storage.c_str();
+			return raw_storage.c_str();
 		}
 		//operator utf8_string_view() const noexcept
 		//{
@@ -193,7 +198,7 @@ namespace termwrap
 		{
 			return const_iterator(raw_storage.begin());
 		}
-		const_interator cbegin() const
+		const_iterator cbegin() const
 		{
 			return const_iterator(raw_storage.cbegin());
 		}
@@ -203,35 +208,35 @@ namespace termwrap
 		}
 		const_iterator end() const
 		{
-			return iterator(raw_storage.end());
+			return const_iterator(raw_storage.cend());
 		}
 		const_iterator cend() const
 		{
-			return iterator(raw_storage.cend());
+			return const_iterator(raw_storage.cend());
 		}
 		reverse_iterator rbegin()
 		{
-			return reverse_iterator(raw_storage.end());
+			return std::make_reverse_iterator(end());
 		}
 		const_reverse_iterator rbegin() const
 		{
-			return const_reverse_iterator(raw_storage.end());
+			return std::make_reverse_iterator(cend());
 		}
 		const_reverse_iterator crbegin() const
 		{
-			return const_reverse_iterator(raw_storage.cend());
+			return std::make_reverse_iterator(cend());
 		}
 		reverse_iterator rend()
 		{
-			return reverse_iterator(raw_storage.begin());
+			return std::make_reverse_iterator(begin());
 		}
 		const_reverse_iterator rend() const
 		{
-			return const_reverse_iterator(raw_storage.begin());
+			return std::make_reverse_iterator(begin());
 		}
 		const_reverse_iterator crend() const
 		{
-			return const_reverse_iterator(raw_storage.cbegin());
+			return std::make_reverse_iterator(cbegin());
 		}
 		//
 		// Capacity.
@@ -242,7 +247,7 @@ namespace termwrap
 		}
 		size_type size() const noexcept
 		{
-			return utf8::unchecked::distance(cbegin(), cend());
+			return utf8::unchecked::distance(raw_storage.cbegin(), raw_storage.cend());
 		}
 		size_type length() const noexcept
 		{
@@ -264,7 +269,13 @@ namespace termwrap
 			raw_storage.clear();
 		}
 	private:
-		const_iterator get_iterator_at(const size_type index) const
+		iterator get_iterator_at(const size_type index)
+		{
+			auto it = begin();
+			std::advance(it, index);
+			return it;
+		}
+		const_iterator get_iterator_at(const size_type index) const 
 		{
 			auto it = cbegin();
 			std::advance(it, index);
@@ -284,9 +295,9 @@ namespace termwrap
 	public:
 		utf8_string& insert(const size_type index, size_type count, uint32_t cp)
 		{
-			auto it = get_iterator_at(index);
+			auto it = get_iterator_at(index).base();
 			for (; count > 0; --count)
-				utf8::append(cp, std::inserter(raw_storage, it.base()));
+				utf8::append(cp, std::inserter(raw_storage, it));
 			return *this;
 		}
 		utf8_string& insert(const size_type index, const uint32_t* cps)
@@ -306,7 +317,7 @@ namespace termwrap
 		utf8_string& insert(const size_type index, const utf8_string& str)
 		{
 			auto it = get_iterator_at(index);
-			raw_storage.insert(it.base(), str.raw_storage);
+			raw_storage.insert(it.base(), str.raw_storage.begin(), str.raw_storage.end());
 			return *this;
 		}
 		utf8_string& insert(const size_type index, const utf8_string& str, const size_type index_str, size_type count = npos)
@@ -317,7 +328,7 @@ namespace termwrap
 			utf32to8(begin, end, std::inserter(raw_storage, it.base()));
 			return *this;
 		}
-		iterator insert(const_iterator pos, uint32_t cp)
+		iterator insert(iterator pos, uint32_t cp)
 		{
 			utf8::append(cp, std::inserter(raw_storage, pos.base()));
 			return pos;
@@ -327,13 +338,13 @@ namespace termwrap
 		{
 			return raw_storage.insert(pos, first, last);
 		}
-		template <>
+		/*template <>
 		iterator insert(const_iterator pos, const_iterator first, const const_iterator last)
 		{
 			utf8::utf32to8(first, last, std::inserter(raw_storage, pos.base()));
 			return pos;
-		}
-		iterator insert(const_iterator pos, const std::initializer_list<uint32_t> ilist)
+		}*/
+		iterator insert(iterator pos, const std::initializer_list<uint32_t> ilist)
 		{
 			utf8::utf32to8(ilist.begin(), ilist.end(), std::inserter(raw_storage, pos.base()));
 			return pos;
@@ -341,22 +352,23 @@ namespace termwrap
 		//utf8_string& insert(const size_type pos, utf8_string_view& sv)
 		//template <class T>
 		//utf8_string& insert(const size_type index, const T& t, size_type index_str, size_type count = npos);
-		basic_string& erase(const size_type index = 0, const size_type = npos)
+		/*utf8_string& erase(const size_type index = 0, const size_type count = npos)
 		{
 			auto begin = get_iterator_at(index);
-			auto end = get_end_iterator(begin, index);
-			raw_storage.erase(begin, end);
+			auto end = get_end_iterator(begin, count);
+			raw_storage.erase(begin.base(), end.base());
 			return *this;
-		}
+		}*/
 		iterator erase(const_iterator pos) noexcept
 		{
 			auto begin = pos.base();
-			utf8::unchecked::next(pos.base());
-			return iterator(raw_storage.erase(begin, pos));
+			auto base = pos.base();
+			utf8::unchecked::next(base);
+			return iterator(raw_storage.erase(begin, pos.base()));
 		}
 		iterator erase(const_iterator first, const_iterator last) noexcept
 		{
-			return iterator(raw_storage.erase(first.base(), last.base());
+			return iterator(raw_storage.erase(first.base(), last.base()));
 		}
 		void push_back(uint32_t cp)
 		{
@@ -401,16 +413,16 @@ namespace termwrap
 		template <class InputIt>
 		utf8_string& append(InputIt first, InputIt last)
 		{
-			raw_storage.append(pos, first, last);
+			raw_storage.append(first, last);
 			return *this;
 		}
-		template <>
+		/*template <>
 		utf8_string& append(const_iterator first, const const_iterator last)
 		{
 			utf8::utf32to8(first, last, std::back_inserter(raw_storage));
 			return *this;
-		}
-		utf8_string append(const std::initializer_list<uint32_t>& ilist)
+		}*/
+		utf8_string& append(const std::initializer_list<uint32_t>& ilist)
 		{
 			utf8::utf32to8(ilist.begin(), ilist.end(), std::back_inserter(raw_storage));
 			return *this;
@@ -470,8 +482,21 @@ namespace termwrap
 		// int compare ... string_view
 		// replace
 		//
+		template <class CharT, class Traits>
+		friend std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os, const utf8_string& str);
 
 	}; // End of class utf8_string.
+
+	template <class CharT, class Traits>
+	std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os, const utf8_string& str)
+	{
+		std::ostream::sentry s(os);
+		if (s)
+		{
+			os.write(str.raw_storage.data(), str.raw_storage.length());
+		}
+		return os;
+	}
 
 } // End of namespace termwrap.
 
