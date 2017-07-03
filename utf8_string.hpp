@@ -53,16 +53,16 @@ namespace termwrap
 		{
 			assign(other, pos, count);
 		}
-		utf8_string(const StorageT& other, size_type pos, size_type count = npos)
+		utf8_string(const storage_t& other, size_type pos, size_type count = npos)
 		{
-			raw_storage(StorageT(other.raw_storage, pos, count));
+			raw_storage(storage_t(other.raw_storage, pos, count));
 		}
-		utf8_string(const uint32_t* cps, size_type count)
+		utf8_string(uint32_t* const cps, size_type count)
 		{
 			for (; count > 0; --count)
 				utf8::append(std::back_inserter(raw_storage), *cps++);
 		}
-		utf8_string(const uint32_t* const cps)
+		utf8_string(uint32_t* const cps)
 		{
 			while (*cps)
 				utf8::append(std::back_inserter(raw_storage), *cps++);
@@ -263,8 +263,38 @@ namespace termwrap
 		{
 			raw_storage.clear();
 		}
+		utf8_string& insert(const size_type index, size_type count, uint32_t cp)
+		{
+			auto it = cbegin();
+			std::advance(it, index);
+			for (; count > 0; --count)
+				utf8::append(cp, std::inserter(raw_storage, it.base()));
+			return *this;
+		}
+		utf8_string& insert(const size_type index, const uint32_t* cps)
+		{
+			auto it = cbegin();
+			std::advance(it, index);
+			while (*cps)
+				utf8::append(*cps++, std::inserter(raw_storage, it.base()));
+			return *this;
+		}
+		utf8_string& insert(const size_type index, const uint32_t* cps, size_type count)
+		{
+			auto it = cbegin();
+			std::advance(it, index);
+			for(; count > 0; --count)
+				utf8::append(*cps++, std::inserter(raw_storage, it.base()));
+			return *this;
+		}
+		utf8_string& insert(const size_type index, const utf8_string& other)
+		{
+			auto it = cbegin();
+			std::advance(it, index);
+			raw_storage.insert(it.base(), other.raw_storage);
+			return *this;
+		}
 		
-
 
 
 	}; // End of class utf8_string.
