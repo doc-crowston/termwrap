@@ -11,8 +11,8 @@
 #define RHC_TERMWRAP_TYPES_H
 
 #include <cstdint>
-#include <string>
-#include <string_view>
+#include "utf8_string.hpp"
+#include "utf8_string_view.hpp"
 
 namespace termwrap
 {
@@ -20,8 +20,8 @@ namespace termwrap
 
 	using ordinate_t = std::uint_least16_t;
 	using native_char_t = std::uint32_t;
-	using string = std::string;
-	using string_view = std::string_view;
+	using string = utf8_string;
+	using string_view = utf8_string_view;
 } // End of namspace termwrap.
 
 #endif // !RHC_TERMWRAP_TYPES_H.

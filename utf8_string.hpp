@@ -33,6 +33,7 @@ namespace termwrap
 
 	public:
 		using size_type = storage_t::size_type;
+		using value_type = std::uint32_t;
 		static constexpr auto npos = storage_t::npos;
 
 		using iterator = utf8::unchecked::iterator<storage_t::iterator>;
@@ -164,13 +165,13 @@ namespace termwrap
 		uint32_t front() const
 		{
 			auto it = cbegin();
-			return utf8::unchecked::next(it);
+			return *it;
 		}
 		uint32_t back() const
 		{
 			auto it = cend();
 			--it;
-			return utf8::unchecked::next(it);
+			return *it;
 		}
 		char* data()
 		{
@@ -275,7 +276,7 @@ namespace termwrap
 			std::advance(it, index);
 			return it;
 		}
-		const_iterator get_iterator_at(const size_type index) const 
+		const_iterator get_iterator_at(const size_type index) const
 		{
 			auto it = cbegin();
 			std::advance(it, index);
