@@ -17,6 +17,7 @@
 #include <iterator>
 #include <initializer_list>
 #include <string>
+#include "utf8_string_view.hpp"
 #include "/opt/utf8/source/utf8.h"
 
 namespace termwrap
@@ -145,8 +146,11 @@ namespace termwrap
 			utf8::utf32to8(init.begin(), init.end(), std::back_inserter(raw_storage));
 			return *this;
 		}
-		//utf8_string& assign(utf8_string_view sv) { utf8_string(sv.data(), sv.size())}
-		//{ }
+		utf8_string& assign(const utf8_string_view& sv)
+		{
+			utf8_string(sv.data(), sv.size());
+			return *this;
+		}
 
 		//
 		// Accessors.
@@ -185,9 +189,10 @@ namespace termwrap
 		{
 			return raw_storage.c_str();
 		}
-		//operator utf8_string_view() const noexcept
-		//{
-		//}
+		operator utf8_string_view() const noexcept
+		{
+			return utf8_string_view(raw_storage.data(), raw_storage.length());
+		}
 		//
 		// Iterators.
 		//
