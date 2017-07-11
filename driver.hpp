@@ -54,9 +54,9 @@ namespace termwrap
 		
 		// Cell-level display.
 		void set_cell_style(const ordinate_t x, const ordinate_t y, const cell_style& style);
-		void set_cell(const ordinate_t x, const ordinate_t y, const char ch, const cell_style& style);
+		void set_cell(const ordinate_t x, const ordinate_t y, const u8char_t ch, const cell_style& style);
 		cell_style get_cell_style(const ordinate_t x, const ordinate_t y) const;
-		char get_cell_text(const ordinate_t x, const ordinate_t y) const;
+		u8char_t get_cell_text(const ordinate_t x, const ordinate_t y) const;
 
 		// Terminal properties.
 		ordinate_t console_height() const;
@@ -65,8 +65,8 @@ namespace termwrap
 		bool supports_256_bit_color() const;
 		bool supports_bold() const;*/
 
-		static native_char_t to_native_char(const char ch);
-		static char to_char(const native_char_t nch);
+		//static native_char_t to_native_char(const char ch);
+		//static char to_char(const native_char_t nch);
 
 		void hide_cursor();
 		void set_cursor_position(const ordinate_t x, const ordinate_t y);

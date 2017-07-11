@@ -78,16 +78,16 @@ namespace termwrap
 		return style;
 	}
 
-	char driver::get_cell_text(const ordinate_t x, const ordinate_t y) const
+	u8char_t driver::get_cell_text(const ordinate_t x, const ordinate_t y) const
 	{
 		const struct tb_cell* const native_buffer = tb_cell_buffer();
 		const struct tb_cell* const cell = native_buffer + y*console_width() + x;
-		return to_char(cell->ch);
+		return cell->ch;
 	}
 
-	void driver::set_cell(const ordinate_t x, const ordinate_t y, const char ch, const cell_style& style)
+	void driver::set_cell(const ordinate_t x, const ordinate_t y, const u8char_t ch, const cell_style& style)
 	{
-		tb_change_cell(x, y, to_native_char(ch), style.to_native_fg(), style.to_native_bg());
+		tb_change_cell(x, y, ch, style.to_native_fg(), style.to_native_bg());
 	}
 
 	void driver::write_at(ordinate_t x, const ordinate_t y, const string_view& text, const cell_style& style)
@@ -95,7 +95,7 @@ namespace termwrap
 		if (text.length() > console_width() - x)
 			throw text_overflow_error();
 		for (const auto& ch : text)
-			tb_change_cell(x++, y, to_native_char(ch), style.to_native_fg(), style.to_native_bg());
+			tb_change_cell(x++, y, ch, style.to_native_fg(), style.to_native_bg());
 	}
 
 	void driver::write_at(ordinate_t x, const ordinate_t y, const string_view& text)
@@ -106,7 +106,7 @@ namespace termwrap
 		{
 			const struct tb_cell* const native_buffer = tb_cell_buffer();
 			const struct tb_cell* const cell = native_buffer + y*console_width() + x;
-			tb_change_cell(x, y, to_native_char(ch), cell->fg, cell->bg);
+			tb_change_cell(x, y, ch, cell->fg, cell->bg);
 			x++;
 		}
 	}
@@ -143,7 +143,7 @@ namespace termwrap
 
 			const struct tb_cell* const native_buffer = tb_cell_buffer();
 			const struct tb_cell* const cell = native_buffer + y*width + x;
-			tb_change_cell(x, y, to_native_char(ch), cell->fg, cell->bg);
+			tb_change_cell(x, y, ch, cell->fg, cell->bg);
 
 			++x;
 		}
@@ -174,7 +174,7 @@ namespace termwrap
 		return tb_width();
 	}
 
-	native_char_t driver::to_native_char(const char ch)
+	/*native_char_t driver::to_native_char(const char ch)
 	{
 		native_char_t nch;
 		tb_utf8_char_to_unicode(&nch, &ch);
@@ -190,7 +190,7 @@ namespace termwrap
 			throw utf8_codepoint_too_wide_error();
 
 		return ch;
-	}
+	}*/
 
 	void driver::hide_cursor()
 	{
@@ -218,7 +218,7 @@ namespace termwrap
 		const bool alt = false; //native_event.mod & TB_MOD_ALT;
 
 		if (native_event.ch)
-			return key_event(to_char(native_event.ch), false, alt);
+			return key_event(native_event.ch, false, alt);
 
 		switch (native_event.key)
 		{

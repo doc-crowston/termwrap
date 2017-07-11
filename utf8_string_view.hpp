@@ -123,6 +123,12 @@ namespace termwrap
 		{
 			return octet_view.data();
 		}
+		const_pointer data_at(const size_type pos) const
+		{
+			auto it = octet_view.cbegin();
+			utf8::unchecked::advance(it, pos);
+			return &*it;
+		}
 
 		//
 		// Capacity.

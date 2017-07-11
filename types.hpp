@@ -17,6 +17,7 @@
 namespace termwrap
 {
 	using std::size_t;
+	using u8char_t = std::uint32_t;
 
 	using ordinate_t = std::uint_least16_t;
 	using native_char_t = std::uint32_t;

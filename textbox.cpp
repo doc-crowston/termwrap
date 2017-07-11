@@ -39,12 +39,12 @@ namespace termwrap
 
 		const size_t effective_view_position = (has_focus) ? view_position : 0;
 		const size_t cursor_view_position = cursor_position-view_position;
-		const auto content_view = std::string_view(&content[effective_view_position], std::min<size_t>(content.length()-effective_view_position, display_width));
+		const auto content_view = string_view(content.data_at(effective_view_position), std::min<size_t>(content.length()-effective_view_position, display_width));
 
 		parent.write_at(begin_x, begin_y, content_view, filled_style);
 		
 		if (display_width - content_view.length() > 0)
-			parent.write_at(begin_x+content_view.length(), begin_y, std::string(display_width-content_view.length(), ' '), unfilled_style);
+			parent.write_at(begin_x+content_view.length(), begin_y, string(display_width-content_view.length(), ' '), unfilled_style);
 
 		if (has_focus)
 			parent.set_cursor_position(begin_x+cursor_view_position, begin_y);
@@ -146,7 +146,7 @@ namespace termwrap
 		if ((content.length() >= max_content_length && mode == insert_mode::insert) || cursor_position >= max_content_length)
 			return;
 
-		if (const auto ch = std::get_if<char>(&event.key))
+		if (const auto ch = std::get_if<u8char_t>(&event.key))
 		{
 			if (cursor_position == content.length())
 				content.push_back(*ch);

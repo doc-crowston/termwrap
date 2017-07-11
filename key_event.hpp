@@ -48,7 +48,7 @@ namespace termwrap
 
 	struct key_event
 	{
-		key_event(const char key, const bool ctrl = false, const bool alt = false)
+		key_event(const u8char_t key, const bool ctrl = false, const bool alt = false)
 			: key(key), ctrl(ctrl), alt(alt)
 		{ }
 		key_event(const special_key key, const bool ctrl = false, const bool alt = false)
@@ -57,7 +57,7 @@ namespace termwrap
 		key_event(const key_event& ) = default;
 		key_event& operator= (const key_event& ) = default;
 
-		std::variant<special_key, char> key;
+		std::variant<special_key, u8char_t> key;
 
 		bool ctrl;
 		bool alt;

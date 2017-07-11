@@ -185,6 +185,12 @@ namespace termwrap
 		{
 			return raw_storage.data();
 		}
+		const char* data_at(const size_type pos) const
+		{
+			auto it = raw_storage.cbegin();
+			utf8::unchecked::advance(it, pos);
+			return &*it;
+		}
 		const char* c_str() const
 		{
 			return raw_storage.c_str();
@@ -287,6 +293,17 @@ namespace termwrap
 			std::advance(it, index);
 			return it;
 		}
+		iterator get_end_iterator(const iterator begin, const size_type count = npos)
+		{
+			if (count == npos)
+				return end();
+			else
+			{
+				auto end = begin;
+				std::advance(end, count);
+				return end;
+			}
+		}
 		const_iterator get_end_iterator(const const_iterator begin, const size_type count = npos) const
 		{
 			if (count == npos)
@@ -358,13 +375,13 @@ namespace termwrap
 		//utf8_string& insert(const size_type pos, utf8_string_view& sv)
 		//template <class T>
 		//utf8_string& insert(const size_type index, const T& t, size_type index_str, size_type count = npos);
-		/*utf8_string& erase(const size_type index = 0, const size_type count = npos)
+		utf8_string& erase(const size_type index = 0, const size_type count = npos)
 		{
 			auto begin = get_iterator_at(index);
 			auto end = get_end_iterator(begin, count);
 			raw_storage.erase(begin.base(), end.base());
 			return *this;
-		}*/
+		}
 		iterator erase(const_iterator pos) noexcept
 		{
 			auto begin = pos.base();
