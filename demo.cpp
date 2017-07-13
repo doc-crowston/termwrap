@@ -5,6 +5,7 @@
 #include <string_view>
 
 #include "driver.hpp"
+#include "utf8_string.hpp"
 #include "textbox.hpp"
 
 using namespace termwrap;
@@ -40,7 +41,7 @@ class tui
 	}
 	void inspector()
 	{
-		const std::string fare_rules = "  V FARE BASIS     BK    FARE   TRAVEL-TICKET AP  MINMAX  RTG\n  1   IENJSB         I   320.00     ----     21/1 SU/12M EH01\nPASSENGER TYPE-ADT                 AUTO PRICE-YES\nFROM-MAD TO-LON    CXR-IB    TVL-15OCT17  RULE-M602 IPREURP/21\nFARE BASIS-IENJSB            SPECIAL FARE  DIS-E   VENDOR-ATP\nFARE TYPE-BXR      RT-2ND LEVEL BUSINESS CLASS EXCURSION\nEUR   285.00  5000  E18OCT16 D-INFINITY   FC-IENJSB  FN-\nSYSTEM DATES - CREATED 17OCT16/1315  EXPIRES INFINITY\n.";
+		const utf8_string fare_rules = "  V FARE BASIS     BK    FARE   TRAVEL-TICKET AP  MINMAX  RTG\n  1   IENJSB         I   320.00     ----     21/1 SU/12M EH01\nPASSENGER TYPE-ADT                 AUTO PRICE-YES\nFROM-MAD TO-LON    CXR-IB    TVL-15OCT17  RULE-M602 IPREURP/21\nFARE BASIS-IENJSB            SPECIAL FARE  DIS-E   VENDOR-ATP\nFARE TYPE-BXR      RT-2ND LEVEL BUSINESS CLASS EXCURSION\nEUR   285.00  5000  E18OCT16 D-INFINITY   FC-IENJSB  FN-\nSYSTEM DATES - CREATED 17OCT16/1315  EXPIRES INFINITY\n.";
 		console.write_block_at(1,3, fare_rules);
 
 		cell_style highlight_style {};
@@ -62,7 +63,7 @@ class tui
 	{
 		using std::size_t;
 
-		const std::string query_label = "Fare query";
+		const utf8_string query_label = "Fare query";
 
 		const size_t max_input_length = 22;
 		const size_t max_view_length = 22;
@@ -99,7 +100,7 @@ class tui
 				continue;
 
 			if (event->ctrl)
-				if (const auto ch = std::get_if<char>(&event->key))
+				if (const auto ch = std::get_if<uint32_t>(&event->key))
 					if (*ch == 'C')
 						return;
 	

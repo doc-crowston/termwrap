@@ -17,6 +17,7 @@
 #include <iterator>
 #include <initializer_list>
 #include <string>
+#include "utf8_char.hpp"
 #include "utf8_string_view.hpp"
 #include "/opt/utf8/source/utf8.h"
 
@@ -83,16 +84,18 @@ namespace termwrap
 		utf8_string(const utf8_string& other) = default;
 		utf8_string(const storage_t& other) : raw_storage(other) { }
 		utf8_string(utf8_string&& other) = default;
+		utf8_string(const char* const other) : raw_storage(other) { }
 		utf8_string(const std::initializer_list<uint32_t> init)
 		{
 			utf8::utf32to8(init.begin(), init.end(), std::back_inserter(raw_storage));
 		}
-		//explicit utf8_string(utf8_string_view sv) : utf8_string(sv.data(), sv.size())
-		//{ }
+		explicit utf8_string(utf8_string_view sv) : raw_storage(sv.data(), sv.size())
+		{ }
 
 		~utf8_string() = default;
 		utf8_string& operator=(const utf8_string& other) = default;
 		utf8_string& operator=(const storage_t& other) { raw_storage.assign(other); return *this; }
+		utf8_string& operator=(const char* str) { raw_storage = str; return *this; }
 
 		//
 		// Assignment.
@@ -148,7 +151,7 @@ namespace termwrap
 		}
 		utf8_string& assign(const utf8_string_view& sv)
 		{
-			utf8_string(sv.data(), sv.size());
+			raw_storage.assign(sv.data(), sv.size());
 			return *this;
 		}
 
@@ -162,7 +165,17 @@ namespace termwrap
 			std::advance(it, pos);
 			return *it;
 		}
+		utf8_char at(const size_type pos)
+		{
+			auto it = begin();
+			std::advance(it, pos);
+			return utf8_char(raw_storage, &*it.base());
+		}
 		uint32_t operator[](const size_type pos) const
+		{
+			return at(pos);
+		}
+		utf8_char operator[](const size_type pos)
 		{
 			return at(pos);
 		}
