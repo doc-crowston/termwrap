@@ -9,19 +9,12 @@ using termwrap::utf8_string_view;
 
 int main()
 {
-	utf8_string bumble{"\u00a1Bumble bée¡. ¥ × 2 Alpha école polytechnique §± Señator. 最高 \u00df\u6c34\U0001f34c"};
-	std::cout << bumble << std::endl;
+	utf8_string bumble{"高"};
 
-	std::cout << bumble.front() << " " << bumble.back() << std::endl;
+	utf8_string_view bob{bumble};
 
-	auto bobble = utf8_string_view(bumble);
-	std::cout << bobble << std::endl;
-
-	bobble.remove_prefix(3);
-	std::cout << bobble << std::endl;
-
-	bobble.remove_suffix(5);
-	std::cout << bobble << std::endl;
+	for (const auto& ch : bob)
+		std::cout << ch << std::endl;
 	
 	return 0;
 }
