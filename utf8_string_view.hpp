@@ -71,7 +71,10 @@ namespace termwrap
 		}
 		/*constexpr*/ const_iterator end() const noexcept
 		{
-			return iterator(octet_view.end());
+			auto octet_it = iterator(octet_view.end());
+			utf8::unchecked::prior(octet_it);
+			utf8::unchecked::advance(octet_it, 1);
+			return octet_it;
 		}
 		/*constexpr*/ const_iterator cend() const noexcept
 		{

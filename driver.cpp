@@ -94,20 +94,16 @@ namespace termwrap
 	{
 		if (text.length() > console_width() - x)
 			throw text_overflow_error();
-		for (auto it = text.cbegin(); it != text.cend(); ++it)
-		{
-			const auto ch = *it;
+		for (const auto& ch : text)
 			tb_change_cell(x++, y, ch, style.to_native_fg(), style.to_native_bg());
-		}
 	}
 
 	void driver::write_at(ordinate_t x, const ordinate_t y, const string_view& text)
 	{
 		if (text.length() > console_width() - x)
 			throw text_overflow_error();
-		for (auto it = text.cbegin(); it != text.cend(); ++it)
+		for (const auto& ch : text)
 		{
-			const auto ch = *it;
 			const struct tb_cell* const native_buffer = tb_cell_buffer();
 			const struct tb_cell* const cell = native_buffer + y*console_width() + x;
 			tb_change_cell(x, y, ch, cell->fg, cell->bg);
