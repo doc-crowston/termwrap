@@ -49,9 +49,12 @@ namespace termwrap
 		constexpr utf8_string_view(const storage_t& sv) noexcept
 			: octet_view{sv}
 		{ }
-		constexpr utf8_string_view(const char* const s, const size_type count) noexcept
-			: octet_view{s, count}
-		{ }
+		constexpr utf8_string_view(const char* const s, size_type count) noexcept
+		{
+			const char* end = s;
+			utf8::unchecked::advance(end, count);
+			octet_view = storage_t{s, static_cast<storage_t::size_type>(end-s)};
+		}
 		constexpr utf8_string_view(const char* const s)
 			: octet_view{s}
 		{ }
@@ -71,10 +74,7 @@ namespace termwrap
 		}
 		/*constexpr*/ const_iterator end() const noexcept
 		{
-			auto octet_it = iterator(octet_view.end());
-			utf8::unchecked::prior(octet_it);
-			utf8::unchecked::advance(octet_it, 1);
-			return octet_it;
+			return iterator(octet_view.end());
 		}
 		/*constexpr*/ const_iterator cend() const noexcept
 		{
