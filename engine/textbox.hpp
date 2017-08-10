@@ -10,10 +10,10 @@
 #ifndef RHC_TERMBOX_TEXTBOX_H
 #define RHC_TERMBOX_TEXTBOX_H
 
-#include "cell_style.hpp"
-#include "driver.hpp"
-#include "key_event.hpp"
-#include "types.hpp"
+#include "../driver/cell_style.hpp"
+#include "../driver/driver.hpp"
+#include "../driver/key_event.hpp"
+#include "../driver/types.hpp"
 
 namespace termwrap
 {
